@@ -5,14 +5,7 @@
 
 #include "draw.hpp"
 
-struct float3
-{
-    float x;
-    float y;
-    float z;
-};
-
-static float3 getSphericalCoords(float r, float theta, float phi)
+float3 getSphericalCoords(float r, float theta, float phi)
 {
     return { r * sinf(theta) * cosf(phi),
              r * cosf(theta),
