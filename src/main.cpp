@@ -1,5 +1,6 @@
 
 #include <cstdio>
+#include <cmath>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -41,30 +42,101 @@ int main(int argc, char* argv[])
     printf("GL_RENDERER: %s\n", glGetString(GL_RENDERER));
 
     bool showWireframe = false;
+    bool orthographic  = false;
+    float3 cameraPos = { 5.5f, 0, 5.5f };
+    float3 cameraRot = { 0.f, 0.f, 0.f };
 
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
         
-        // F1-F2 to toggle wireframe
-        if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS)
+        // 1-2 to toggle wireframe.
+        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
             showWireframe = false;
-        else if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS)
+        else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
             showWireframe = true;
+        
+        // 3-4 to toggle orthographic view.
+        if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
+            orthographic = false;
+        else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
+            orthographic = true;
 
-        // Clear buffer
+        // WASD keys to move the camera.
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+            float3 lookAtPoint = getSphericalCoords(0.1f, DEG2RAD*(cameraRot.x - 90), DEG2RAD*(cameraRot.y));
+            cameraPos.x += lookAtPoint.x; cameraPos.y += lookAtPoint.y; cameraPos.z += lookAtPoint.z;
+        }
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+            float3 lookAtPoint = getSphericalCoords(0.1f, DEG2RAD*(cameraRot.x + 90), DEG2RAD*(cameraRot.y));
+            cameraPos.x += lookAtPoint.x; cameraPos.y += lookAtPoint.y; cameraPos.z += lookAtPoint.z;
+        }
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+            float3 lookAtPoint = getSphericalCoords(0.1f, DEG2RAD*(cameraRot.x + 180), DEG2RAD*(cameraRot.y));
+            cameraPos.x += lookAtPoint.x; cameraPos.y += lookAtPoint.y; cameraPos.z += lookAtPoint.z;
+        }
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+            float3 lookAtPoint = getSphericalCoords(0.1f, DEG2RAD*(cameraRot.x), DEG2RAD*(cameraRot.y));
+            cameraPos.x += lookAtPoint.x; cameraPos.y += lookAtPoint.y; cameraPos.z += lookAtPoint.z;
+        }
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+            float3 lookAtPoint = getSphericalCoords(0.1f, DEG2RAD*(cameraRot.x + 90), DEG2RAD*(cameraRot.y + 90));
+            cameraPos.x += lookAtPoint.x; cameraPos.y += lookAtPoint.y; cameraPos.z += lookAtPoint.z;
+        }
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+            float3 lookAtPoint = getSphericalCoords(0.1f, DEG2RAD*(cameraRot.x - 90), DEG2RAD*(cameraRot.y + 90));
+            cameraPos.x += lookAtPoint.x; cameraPos.y += lookAtPoint.y; cameraPos.z += lookAtPoint.z;
+        }
+
+        // Q and E keys to rotate the camera on Z.
+        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+            cameraRot.z -= 0.5;
+        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+            cameraRot.z += 0.5;
+
+        // Mouse to rotate the camera on X and Y.
+        static double mousePos[2];
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+        {
+            double newMousePos[2]; 
+            glfwGetCursorPos(window, &newMousePos[0], &newMousePos[1]);
+
+            cameraRot.x -= (newMousePos[0] - mousePos[0]) / 7;
+            cameraRot.y -= (newMousePos[1] - mousePos[1]) / 7;
+
+            mousePos[0] = newMousePos[0]; 
+            mousePos[1] = newMousePos[1];
+        }
+        else
+        {
+            glfwGetCursorPos(window, &mousePos[0], &mousePos[1]);
+        }
+
+        // Clear buffer.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(1.f, 0.5f, 0.5f, 1.f);
 
-        // Send projection matrix
+        // Send projection matrix.
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        gluPerspective(90.f, (float)screenWidth / screenHeight, 0.5f, 100.f);
+
+        if (orthographic)
+            glOrtho((float)-screenWidth / 120, (float)screenWidth / 120, (float)-screenHeight / 120, (float)screenHeight / 120, 0.5f, 100.f);
+        else
+            gluPerspective(90.f, (float)screenWidth / screenHeight, 0.5f, 100.f);
         
-        // Send modelview matrix
+        // Send modelview matrix.
         glMatrixMode(GL_MODELVIEW);
+        glEnable(GL_DEPTH_TEST);
         glLoadIdentity();
-        glTranslatef(-5.5f, 0.f, -5.f);
+
+        // Move the modelview matrix to match the camera position and rotation.
+        glRotatef   (-cameraRot.y, 1.f, 0.f, 0.f);
+        glRotatef   (-cameraRot.x, 0.f, 1.f, 0.f);
+        glRotatef   (-cameraRot.z, 0.f, 0.f, 1.f);
+        glTranslatef(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+
+        // Rotate the model view.
         static float rotation = 0.f;
         rotation += 0.5f;
         glRotatef(rotation, 1.f, 0.f, 0.f);
