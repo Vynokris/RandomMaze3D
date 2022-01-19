@@ -1,35 +1,46 @@
-
-#include <cmath>
-
 #include "gl.hpp"
-
+#include "glUtility.hpp"
 #include "draw.hpp"
 
-float3 getSphericalCoords(float r, float theta, float phi)
+void gl::drawTriangle(float size, GLuint texture)
 {
-    return { r * sinf(theta) * cosf(phi),
-             r * cosf(theta),
-             r * sinf(theta) * sinf(phi)
-    };
-}
+    if (texture)
+    {
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glEnable(GL_TEXTURE_2D);
+    }
 
-void gl::drawTriangle(float size)
-{
     glBegin(GL_TRIANGLES);
-    glVertex3f(-size, -size, 0.f);
-    glVertex3f( size, -size, 0.f);
-    glVertex3f( 0.0f,  size, 0.f);
+    glTexCoord2f(0, 0); glVertex3f(-size,  size, 0.f);
+    glTexCoord2f(0, 1); glVertex3f(-size, -size, 0.f);
+    glTexCoord2f(1, 0); glVertex3f( size,  size, 0.f);
     glEnd();
+
+    if (texture)
+    {
+        glDisable(GL_TEXTURE_2D);
+    }
 }
 
-void gl::drawQuad(float size)
+void gl::drawQuad(float size, GLuint texture)
 {
+    if (texture)
+    {
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glEnable(GL_TEXTURE_2D);
+    }
+
     glBegin(GL_QUADS);
-    glVertex3f(-size, -size, 0.f);
-    glVertex3f( size, -size, 0.f);
-    glVertex3f( size,  size, 0.f);
-    glVertex3f(-size,  size, 0.f);
+    glTexCoord2f(0, 0); glVertex3f(-size,  size, 0.f);
+    glTexCoord2f(1, 0); glVertex3f( size,  size, 0.f);
+    glTexCoord2f(1, 1); glVertex3f( size, -size, 0.f);
+    glTexCoord2f(0, 1); glVertex3f(-size, -size, 0.f);
     glEnd();
+
+    if (texture)
+    {
+        glDisable(GL_TEXTURE_2D);
+    }
 }
 
 #include <iostream>
@@ -94,13 +105,13 @@ void gl::drawSphere(int lon, int lat, float r)
 
     for (int j = 0; j < lat; ++j)
     {
-        float theta0 = ((j+0) / (float)lat) * M_PI;
-        float theta1 = ((j+1) / (float)lat) * M_PI;
+        float theta0 = ((j+0) / (float)lat) * PI;
+        float theta1 = ((j+1) / (float)lat) * PI;
 
         for (int i = 0; i < lon; ++i)
         {
-            float phi0 = ((i+0) / (float)lon) * 2.f * M_PI;
-            float phi1 = ((i+1) / (float)lon) * 2.f * M_PI;
+            float phi0 = ((i+0) / (float)lon) * 2.f * PI;
+            float phi1 = ((i+1) / (float)lon) * 2.f * PI;
 
             float3 c0 = getSphericalCoords(r, theta0, phi0);
             float3 c1 = getSphericalCoords(r, theta0, phi1);
@@ -128,11 +139,11 @@ void gl::drawPointSphere(int lon, int lat, float r)
 
     for (int j = 0; j < lat; ++j)
     {
-        float theta = (j / (float)lat) * M_PI;
+        float theta = (j / (float)lat) * PI;
 
         for (int i = 0; i < lon; ++i)
         {
-            float phi = (i / (float)lon) * 2.f * M_PI;
+            float phi = (i / (float)lon) * 2.f * PI;
 
             float3 coords = getSphericalCoords(r, theta, phi);
 
@@ -144,12 +155,12 @@ void gl::drawPointSphere(int lon, int lat, float r)
 
 void gl::drawHelperSphere(float r, float theta, float phi)
 {
-    glColor3f(0.f, 0.f, 0.f);
+    glColor3f(1, 1, 1);
     gl::drawPointSphere(20, 20, r);
 
     float3 coords = getSphericalCoords(r, theta, phi);
     glBegin(GL_POINTS);
-    glColor3f(1.f, 1.f, 1.f);
+    glColor3f(1, 0, 1);
     glVertex3f(coords.x, coords.y, coords.z);
     glEnd();
 }
@@ -166,7 +177,7 @@ void gl::drawCone(int res, float r, float h)
         glVertex3f(0.f, 0.f, 0.f);
         for (int j = 0; j < 2; j++)
         {
-            float theta = ((i + j) / (float)res) * 2.f * M_PI;
+            float theta = ((i + j) / (float)res) * 2.f * PI;
 
             float3 coords = getSphericalCoords(r, theta, 0);
 
@@ -177,7 +188,7 @@ void gl::drawCone(int res, float r, float h)
         glVertex3f(0.f, 0.f, h);
         for (int j = 0; j < 2; j++)
         {
-            float theta = ((i + j) / (float)res) * 2.f * M_PI;
+            float theta = ((i + j) / (float)res) * 2.f * PI;
 
             float3 coords = getSphericalCoords(r, theta, 0);
 

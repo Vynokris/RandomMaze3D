@@ -1,11 +1,14 @@
 
 #include <cstdio>
 #include <cmath>
+#include <map>
+#include <string>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
 #include "gl.hpp"
+#include "glUtility.hpp"
 #include "draw.hpp"
 
 int main(int argc, char* argv[])
@@ -49,10 +52,18 @@ int main(int argc, char* argv[])
     float3 cameraPos = { 5.5f, 0, 5.5f };
     float3 cameraRot = { 0.f, 0.f, 0.f };
 
+    std::map<std::string, GLuint> textures;
+    // textures["Cobblestone0"] = loadTexture("Resources/Art/Cobblestone1.bmp");
+    textures["Cobblestone0"] = loadTestTexture();
+
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
-        
+
+        // Escape to quit.
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            break;
+
         // 1-2 to toggle wireframe.
         if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
             showWireframe = false;
@@ -65,20 +76,6 @@ int main(int argc, char* argv[])
         else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
             orthographic = true;
 
-        // Keypad keys to rotate the camera.
-        if (glfwGetKey(window, GLFW_KEY_KP_2) == GLFW_PRESS)
-            cameraRot.x += 0.5;
-        if (glfwGetKey(window, GLFW_KEY_KP_3) == GLFW_PRESS)
-            cameraRot.x -= 0.5;
-        if (glfwGetKey(window, GLFW_KEY_KP_5) == GLFW_PRESS)
-            cameraRot.z -= 0.5;
-        if (glfwGetKey(window, GLFW_KEY_KP_6) == GLFW_PRESS)
-            cameraRot.z += 0.5;
-        if (glfwGetKey(window, GLFW_KEY_KP_4) == GLFW_PRESS)
-            cameraRot.y += 0.5;
-        if (glfwGetKey(window, GLFW_KEY_KP_1) == GLFW_PRESS)
-            cameraRot.y -= 0.5;
-
         // WASD, space & shift keys to move the camera.
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
             float3 lookAtPoint = getSphericalCoords(speed, DEG2RAD*(360 - cameraRot.y + 90), DEG2RAD*(360 - cameraRot.x - 90));
@@ -89,12 +86,12 @@ int main(int argc, char* argv[])
             cameraPos.x -= lookAtPoint.x; cameraPos.y -= lookAtPoint.y; cameraPos.z -= lookAtPoint.z;
         }
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-            float3 lookAtPoint = getSphericalCoords(speed, DEG2RAD*(360 - cameraRot.y - 90), DEG2RAD*(360 - cameraRot.x));
-            cameraPos.x += lookAtPoint.x; cameraPos.y += lookAtPoint.y; cameraPos.z += lookAtPoint.z;
+            float3 lookAtPoint = getSphericalCoords(speed, DEG2RAD*90, DEG2RAD*(360 - cameraRot.x));
+            cameraPos.x -= lookAtPoint.x; cameraPos.y -= lookAtPoint.y; cameraPos.z -= lookAtPoint.z;
         }
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-            float3 lookAtPoint = getSphericalCoords(speed, DEG2RAD*(360 - cameraRot.y - 90), DEG2RAD*(360 - cameraRot.x));
-            cameraPos.x -= lookAtPoint.x; cameraPos.y -= lookAtPoint.y; cameraPos.z -= lookAtPoint.z;
+            float3 lookAtPoint = getSphericalCoords(speed, DEG2RAD*90, DEG2RAD*(360 - cameraRot.x));
+            cameraPos.x += lookAtPoint.x; cameraPos.y += lookAtPoint.y; cameraPos.z += lookAtPoint.z;
         }
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
             float3 lookAtPoint = getSphericalCoords(speed, DEG2RAD*(360 - cameraRot.y), DEG2RAD*(360 - cameraRot.x - 90));
@@ -126,7 +123,7 @@ int main(int argc, char* argv[])
 
         // Clear buffer.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glClearColor(1.f, 0.5f, 0.5f, 1.f);
+        glClearColor(0, 0, 0, 0);
 
         // Send projection matrix.
         glMatrixMode(GL_PROJECTION);
@@ -151,7 +148,7 @@ int main(int argc, char* argv[])
         // Rotate the model view.
         static float rotation = 0.f;
         rotation += 0.5f;
-        glRotatef(rotation, 1.f, 0.f, 0.f);
+        // glRotatef(rotation, 1.f, 0.f, 0.f);
 
         // Draw primitive
         glPolygonMode(GL_FRONT_AND_BACK, showWireframe ? GL_LINE : GL_FILL);
@@ -160,14 +157,14 @@ int main(int argc, char* argv[])
         gl::drawGizmo(1);
 
         // Draw the triangle.
-        glColor3f(247.f/255, 253.f/255, 26.f/255);
+        // glColor3f(227.f/255, 48.f/255, 177.f/255);
         glTranslatef(2.f, 0.f, 0.f);
-        gl::drawTriangle(0.5f);
+        gl::drawTriangle(0.5f, 1);
 
         // Draw the quad.
-        glColor3f(227.f/255, 48.f/255, 177.f/255);
+        glColor3f(1.f, 1.f, 1.f);
         glTranslatef(1.5f, 0.f, 0.f);
-        gl::drawQuad(0.5f);
+        gl::drawQuad(0.5f, textures["Cobblestone0"]);
 
         // Draw the cube.
         glColor3f(11.f/255, 213.f/255, 51.f/255);
@@ -185,9 +182,9 @@ int main(int argc, char* argv[])
         gl::drawSphere(10.f, 10.f, 1.f);
 
         // Draw the point sphere.
-        glColor3f(0.f, 0.f, 0.f);
+        glColor3f(1.f, 1.f, 1.f);
         glTranslatef(2.5f, 0.f, 0.f);
-        gl::drawPointSphere(10.f, 10.f, 1.f);
+        gl::drawPointSphere(100.f, 10.f, 1.f);
 
         glfwSwapBuffers(window);
     }
