@@ -43,6 +43,9 @@ int main(int argc, char* argv[])
 
     bool showWireframe = false;
     bool orthographic  = false;
+    float speed = 0.1f;
+    double mousePos[2];
+    glfwGetCursorPos(window, &mousePos[0], &mousePos[1]);
     float3 cameraPos = { 5.5f, 0, 5.5f };
     float3 cameraRot = { 0.f, 0.f, 0.f };
 
@@ -62,53 +65,62 @@ int main(int argc, char* argv[])
         else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
             orthographic = true;
 
-        // WASD keys to move the camera.
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-            float3 lookAtPoint = getSphericalCoords(0.1f, DEG2RAD*(cameraRot.x - 90), DEG2RAD*(cameraRot.y));
-            cameraPos.x += lookAtPoint.x; cameraPos.y += lookAtPoint.y; cameraPos.z += lookAtPoint.z;
-        }
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-            float3 lookAtPoint = getSphericalCoords(0.1f, DEG2RAD*(cameraRot.x + 90), DEG2RAD*(cameraRot.y));
-            cameraPos.x += lookAtPoint.x; cameraPos.y += lookAtPoint.y; cameraPos.z += lookAtPoint.z;
-        }
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-            float3 lookAtPoint = getSphericalCoords(0.1f, DEG2RAD*(cameraRot.x + 180), DEG2RAD*(cameraRot.y));
-            cameraPos.x += lookAtPoint.x; cameraPos.y += lookAtPoint.y; cameraPos.z += lookAtPoint.z;
-        }
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            float3 lookAtPoint = getSphericalCoords(0.1f, DEG2RAD*(cameraRot.x), DEG2RAD*(cameraRot.y));
+        // Keypad keys to rotate the camera.
+        if (glfwGetKey(window, GLFW_KEY_KP_2) == GLFW_PRESS)
+            cameraRot.x += 0.5;
+        if (glfwGetKey(window, GLFW_KEY_KP_3) == GLFW_PRESS)
+            cameraRot.x -= 0.5;
+        if (glfwGetKey(window, GLFW_KEY_KP_5) == GLFW_PRESS)
+            cameraRot.z -= 0.5;
+        if (glfwGetKey(window, GLFW_KEY_KP_6) == GLFW_PRESS)
+            cameraRot.z += 0.5;
+        if (glfwGetKey(window, GLFW_KEY_KP_4) == GLFW_PRESS)
+            cameraRot.y += 0.5;
+        if (glfwGetKey(window, GLFW_KEY_KP_1) == GLFW_PRESS)
+            cameraRot.y -= 0.5;
+
+        // WASD, space & shift keys to move the camera.
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+            float3 lookAtPoint = getSphericalCoords(speed, DEG2RAD*(360 - cameraRot.y + 90), DEG2RAD*(360 - cameraRot.x - 90));
             cameraPos.x += lookAtPoint.x; cameraPos.y += lookAtPoint.y; cameraPos.z += lookAtPoint.z;
         }
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-            float3 lookAtPoint = getSphericalCoords(0.1f, DEG2RAD*(cameraRot.x + 90), DEG2RAD*(cameraRot.y + 90));
+            float3 lookAtPoint = getSphericalCoords(speed, DEG2RAD*(360 - cameraRot.y + 90), DEG2RAD*(360 - cameraRot.x - 90));
+            cameraPos.x -= lookAtPoint.x; cameraPos.y -= lookAtPoint.y; cameraPos.z -= lookAtPoint.z;
+        }
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+            float3 lookAtPoint = getSphericalCoords(speed, DEG2RAD*(360 - cameraRot.y - 90), DEG2RAD*(360 - cameraRot.x));
             cameraPos.x += lookAtPoint.x; cameraPos.y += lookAtPoint.y; cameraPos.z += lookAtPoint.z;
         }
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-            float3 lookAtPoint = getSphericalCoords(0.1f, DEG2RAD*(cameraRot.x - 90), DEG2RAD*(cameraRot.y + 90));
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+            float3 lookAtPoint = getSphericalCoords(speed, DEG2RAD*(360 - cameraRot.y - 90), DEG2RAD*(360 - cameraRot.x));
+            cameraPos.x -= lookAtPoint.x; cameraPos.y -= lookAtPoint.y; cameraPos.z -= lookAtPoint.z;
+        }
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+            float3 lookAtPoint = getSphericalCoords(speed, DEG2RAD*(360 - cameraRot.y), DEG2RAD*(360 - cameraRot.x - 90));
             cameraPos.x += lookAtPoint.x; cameraPos.y += lookAtPoint.y; cameraPos.z += lookAtPoint.z;
         }
-
-        // Q and E keys to rotate the camera on Z.
-        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-            cameraRot.z -= 0.5;
-        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-            cameraRot.z += 0.5;
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+            float3 lookAtPoint = getSphericalCoords(speed, DEG2RAD*(360 - cameraRot.y), DEG2RAD*(360 - cameraRot.x - 90));
+            cameraPos.x -= lookAtPoint.x; cameraPos.y -= lookAtPoint.y; cameraPos.z -= lookAtPoint.z;
+        }
 
         // Mouse to rotate the camera on X and Y.
-        static double mousePos[2];
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
         {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
             double newMousePos[2]; 
             glfwGetCursorPos(window, &newMousePos[0], &newMousePos[1]);
 
             cameraRot.x -= (newMousePos[0] - mousePos[0]) / 7;
             cameraRot.y -= (newMousePos[1] - mousePos[1]) / 7;
 
-            mousePos[0] = newMousePos[0]; 
-            mousePos[1] = newMousePos[1];
+            glfwSetCursorPos(window, mousePos[0], mousePos[1]);
         }
         else
         {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             glfwGetCursorPos(window, &mousePos[0], &mousePos[1]);
         }
 

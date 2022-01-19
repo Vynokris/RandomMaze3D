@@ -26,6 +26,8 @@ namespace gl
     void drawSphere(int lon, int lat, float r);
     // Draw a sphere with points
     void drawPointSphere(int lon, int lat, float r);
+    // Draw a helper sphere.
+    void drawHelperSphere(float r, float theta, float phi);
     // Draw cone primitive (res = )
     void drawCone(int res, float r, float h);
     // Draw gizmo (3 axes from 0.0 to 1.0 of different color)
