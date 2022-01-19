@@ -142,6 +142,18 @@ void gl::drawPointSphere(int lon, int lat, float r)
     glEnd();
 }
 
+void gl::drawHelperSphere(float r, float theta, float phi)
+{
+    glColor3f(0.f, 0.f, 0.f);
+    gl::drawPointSphere(20, 20, r);
+
+    float3 coords = getSphericalCoords(r, theta, phi);
+    glBegin(GL_POINTS);
+    glColor3f(1.f, 1.f, 1.f);
+    glVertex3f(coords.x, coords.y, coords.z);
+    glEnd();
+}
+
 
 void gl::drawCone(int res, float r, float h)
 {
