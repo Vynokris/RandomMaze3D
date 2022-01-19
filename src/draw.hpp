@@ -1,25 +1,12 @@
 #pragma once
 
-#define PI 3.14159265358979323846f
-#define DEG2RAD (PI / 180.0f)
-#define RAD2DEG (180.0f / PI)
-
-struct float3
-{
-    float x;
-    float y;
-    float z;
-};
-
-float3 getSphericalCoords(float r, float theta, float phi);
-
 // Utils to draw with OpenGL
 namespace gl
 {
     // Draw triangle with vertices at (-0.5, -0.5), (0.5, -0.5), (0.0, 0.5)
-    void drawTriangle(float size);
+    void drawTriangle(float size, GLuint texture);
     // Draw quad centered (halfSize = 0.5)
-    void drawQuad(float size);
+    void drawQuad(float size, GLuint texture);
     // Draw a cube (res = number of subdivision on each axes)
     void drawCube(int resX, int resY, int resZ, float size);
     // Draw sphere (longitudes, lattitudes)
