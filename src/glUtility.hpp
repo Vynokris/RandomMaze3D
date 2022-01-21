@@ -19,8 +19,8 @@ struct float3
     float z;
 };
 
-float3 getSphericalCoords(float r, float theta, float phi);
+float3 getSphericalCoords(const float& r, const float& theta, const float& phi);
 
-GLuint loadTexture(const char* filename);
+GLuint loadTexture(const char* filename, const int& width, const int& height);
 
 GLuint loadTestTexture();

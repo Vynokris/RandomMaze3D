@@ -2,7 +2,7 @@
 #include "glUtility.hpp"
 #include "draw.hpp"
 
-void gl::drawTriangle(float size, GLuint texture)
+void gl::drawTriangle(const float& size, const GLuint& texture)
 {
     if (texture)
     {
@@ -11,9 +11,11 @@ void gl::drawTriangle(float size, GLuint texture)
     }
 
     glBegin(GL_TRIANGLES);
-    glTexCoord2f(0, 0); glVertex3f(-size,  size, 0.f);
-    glTexCoord2f(0, 1); glVertex3f(-size, -size, 0.f);
-    glTexCoord2f(1, 0); glVertex3f( size,  size, 0.f);
+    {
+        glTexCoord2f(0, 0); glVertex3f(-size/2,  size/2, 0.f);
+        glTexCoord2f(0, 1); glVertex3f(-size/2, -size/2, 0.f);
+        glTexCoord2f(1, 0); glVertex3f( size/2,  size/2, 0.f);
+    }
     glEnd();
 
     if (texture)
@@ -22,7 +24,7 @@ void gl::drawTriangle(float size, GLuint texture)
     }
 }
 
-void gl::drawQuad(float size, GLuint texture)
+void gl::drawQuad(const float& size, const GLuint& texture)
 {
     if (texture)
     {
@@ -31,10 +33,12 @@ void gl::drawQuad(float size, GLuint texture)
     }
 
     glBegin(GL_QUADS);
-    glTexCoord2f(0, 0); glVertex3f(-size,  size, 0.f);
-    glTexCoord2f(1, 0); glVertex3f( size,  size, 0.f);
-    glTexCoord2f(1, 1); glVertex3f( size, -size, 0.f);
-    glTexCoord2f(0, 1); glVertex3f(-size, -size, 0.f);
+    {
+        glTexCoord2f(0, 0); glVertex3f(-size/2,  size/2, 0.f);
+        glTexCoord2f(1, 0); glVertex3f( size/2,  size/2, 0.f);
+        glTexCoord2f(1, 1); glVertex3f( size/2, -size/2, 0.f);
+        glTexCoord2f(0, 1); glVertex3f(-size/2, -size/2, 0.f);
+    }
     glEnd();
 
     if (texture)
@@ -43,8 +47,57 @@ void gl::drawQuad(float size, GLuint texture)
     }
 }
 
-#include <iostream>
-void gl::drawCube(int resX, int resY, int resZ, float size)
+void gl::drawDividedQuad(const float& size, const GLuint& texture)
+{
+    if (texture)
+    {
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glEnable(GL_TEXTURE_2D);
+    }
+
+    glBegin(GL_TRIANGLES);
+    {
+        glTexCoord2f(0, 0); glVertex3f(-size/2,  size/2, 0.f);
+        glTexCoord2f(0, 1); glVertex3f(-size/2, -size/2, 0.f);
+        glTexCoord2f(1, 0); glVertex3f( size/2,  size/2, 0.f);
+        
+        glTexCoord2f(1, 1); glVertex3f( size/2, -size/2, 0.f);
+        glTexCoord2f(1, 0); glVertex3f( size/2,  size/2, 0.f);
+        glTexCoord2f(0, 1); glVertex3f(-size/2, -size/2, 0.f);
+    }
+    glEnd();
+
+    if (texture)
+    {
+        glDisable(GL_TEXTURE_2D);
+    }
+}
+
+void gl::drawCube(const float& size, const GLuint& texture)
+{
+    glPushMatrix();
+
+    glTranslatef(0, 0, size/2);
+
+    // Render the 4 side faces.
+    for (int i = 0; i < 4; i++)
+    {
+        glRotatef(-90, 0, 1, 0);
+        glTranslatef(-size/2, 0, size/2);
+        drawDividedQuad(size, texture);
+    }
+
+    // Render the upper and lower faces.
+    glRotatef(90, 1, 0, 0);
+    glTranslatef(0, -size/2, -size/2);
+    drawDividedQuad(size, texture);
+    glTranslatef(0, 0, size);
+    drawDividedQuad(size, texture);
+
+    glPopMatrix();
+}
+
+void gl::drawSubdividedCube(const int& resX, const int& resY, const int& resZ, const float& size)
 {
     glBegin(GL_TRIANGLES);
 
@@ -61,37 +114,43 @@ void gl::drawCube(int resX, int resY, int resZ, float size)
                 // Left and right faces.
                 if ((x == 0 || x == resX) && y < resY && z < resZ)
                 {
-                    glVertex3f((x == 0 ? -size / 2 : size / 2), curCoords.y,                 curCoords.z);
-                    glVertex3f((x == 0 ? -size / 2 : size / 2), curCoords.y,                 curCoords.z + (size / resZ));
-                    glVertex3f((x == 0 ? -size / 2 : size / 2), curCoords.y + (size / resY), curCoords.z + (size / resZ));
-                    
-                    glVertex3f((x == 0 ? -size / 2 : size / 2), curCoords.y,                 curCoords.z);
-                    glVertex3f((x == 0 ? -size / 2 : size / 2), curCoords.y + (size / resY), curCoords.z + (size / resZ));
-                    glVertex3f((x == 0 ? -size / 2 : size / 2), curCoords.y + (size / resY), curCoords.z);
+                    float xPos = (x == 0 ? -size / 2 : size / 2);
+
+                    glTexCoord2f(0, 0); glVertex3f(xPos, curCoords.y,                 curCoords.z);
+                    glTexCoord2f(0, 1); glVertex3f(xPos, curCoords.y + (size / resY), curCoords.z + (size / resZ));
+                    glTexCoord2f(1, 0); glVertex3f(xPos, curCoords.y + (size / resY), curCoords.z);
+
+                    glVertex3f(xPos, curCoords.y,                 curCoords.z);
+                    glVertex3f(xPos, curCoords.y,                 curCoords.z + (size / resZ));
+                    glVertex3f(xPos, curCoords.y + (size / resY), curCoords.z + (size / resZ));
                 }
 
                 // Up and down faces.
                 if ((y == 0 || y == resY) && x < resX && z < resZ)
                 {
-                    glVertex3f(curCoords.x,                 (y == 0 ? -size / 2 : size / 2), curCoords.z);
-                    glVertex3f(curCoords.x,                 (y == 0 ? -size / 2 : size / 2), curCoords.z + (size / resZ));
-                    glVertex3f(curCoords.x + (size / resX), (y == 0 ? -size / 2 : size / 2), curCoords.z + (size / resZ));
+                    float yPos = (y == 0 ? -size / 2 : size / 2);
 
-                    glVertex3f(curCoords.x,                 (y == 0 ? -size / 2 : size / 2), curCoords.z);
-                    glVertex3f(curCoords.x + (size / resX), (y == 0 ? -size / 2 : size / 2), curCoords.z + (size / resZ));
-                    glVertex3f(curCoords.x + (size / resX), (y == 0 ? -size / 2 : size / 2), curCoords.z);
+                    glVertex3f(curCoords.x,                 yPos, curCoords.z);
+                    glVertex3f(curCoords.x,                 yPos, curCoords.z + (size / resZ));
+                    glVertex3f(curCoords.x + (size / resX), yPos, curCoords.z + (size / resZ));
+
+                    glVertex3f(curCoords.x,                 yPos, curCoords.z);
+                    glVertex3f(curCoords.x + (size / resX), yPos, curCoords.z + (size / resZ));
+                    glVertex3f(curCoords.x + (size / resX), yPos, curCoords.z);
                 }
 
                 // Front and back faces.
                 if ((z == 0 || z == resZ) && x < resX && y < resY)
                 {
-                    glVertex3f(curCoords.x,                 curCoords.y,                 (z == 0 ? -size / 2 : size / 2));
-                    glVertex3f(curCoords.x,                 curCoords.y + (size / resY), (z == 0 ? -size / 2 : size / 2));
-                    glVertex3f(curCoords.x + (size / resX), curCoords.y + (size / resY), (z == 0 ? -size / 2 : size / 2));
+                    float zPos = (z == 0 ? -size / 2 : size / 2);
+
+                    glVertex3f(curCoords.x,                 curCoords.y,                 zPos);
+                    glVertex3f(curCoords.x,                 curCoords.y + (size / resY), zPos);
+                    glVertex3f(curCoords.x + (size / resX), curCoords.y + (size / resY), zPos);
                     
-                    glVertex3f(curCoords.x,                 curCoords.y,                 (z == 0 ? -size / 2 : size / 2));
-                    glVertex3f(curCoords.x + (size / resX), curCoords.y + (size / resY), (z == 0 ? -size / 2 : size / 2));
-                    glVertex3f(curCoords.x + (size / resX), curCoords.y,                 (z == 0 ? -size / 2 : size / 2));
+                    glVertex3f(curCoords.x,                 curCoords.y,                 zPos);
+                    glVertex3f(curCoords.x + (size / resX), curCoords.y + (size / resY), zPos);
+                    glVertex3f(curCoords.x + (size / resX), curCoords.y,                 zPos);
                 }
             }
         }
@@ -99,7 +158,7 @@ void gl::drawCube(int resX, int resY, int resZ, float size)
     glEnd();
 }
 
-void gl::drawSphere(int lon, int lat, float r)
+void gl::drawSphere(const int& lon, const int& lat, const float& r)
 {
     glBegin(GL_TRIANGLES);
 
@@ -133,7 +192,7 @@ void gl::drawSphere(int lon, int lat, float r)
     glEnd();
 }
 
-void gl::drawPointSphere(int lon, int lat, float r)
+void gl::drawPointSphere(const int& lon, const int& lat, const float& r)
 {
     glBegin(GL_POINTS);
 
@@ -153,20 +212,22 @@ void gl::drawPointSphere(int lon, int lat, float r)
     glEnd();
 }
 
-void gl::drawHelperSphere(float r, float theta, float phi)
+void gl::drawHelperSphere(const float& r, const float& theta, const float& phi)
 {
     glColor3f(1, 1, 1);
     gl::drawPointSphere(20, 20, r);
 
+    glDisable(GL_DEPTH_TEST);
     float3 coords = getSphericalCoords(r, theta, phi);
     glBegin(GL_POINTS);
     glColor3f(1, 0, 1);
     glVertex3f(coords.x, coords.y, coords.z);
     glEnd();
+    glEnable(GL_DEPTH_TEST);
 }
 
 
-void gl::drawCone(int res, float r, float h)
+void gl::drawCone(const int& res, const float& r, const float& h)
 {
     glRotatef(90, -1.f, 0.f, 0.f);
     glBegin(GL_TRIANGLES);
@@ -201,7 +262,7 @@ void gl::drawCone(int res, float r, float h)
 }
 
 
-void gl::drawGizmo(float scale)
+void gl::drawGizmo(const float& scale)
 {
     // Draw the x cone.
     glColor3f    (1.f, 0.f, 0.f);
