@@ -53,8 +53,9 @@ int main(int argc, char* argv[])
     float3 cameraRot = { 0.f, 0.f, 0.f };
 
     std::map<std::string, GLuint> textures;
-    // textures["Cobblestone0"] = loadTexture("Resources/Art/Cobblestone1.bmp");
-    textures["Cobblestone0"] = loadTestTexture();
+    std::string textureNames[5] = { "Cobblestone0", "Cobblestone1", "StoneBricks0", "StoneBricks1", "Stonebricks2" };
+    for (long unsigned int i = 0; i < sizeof(textureNames) / sizeof(textureNames[0]); i++)
+        textures[textureNames[i]] = loadTexture(("Resources/Art/" + textureNames[i] + ".bmp").c_str(), 16, 16);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -123,16 +124,16 @@ int main(int argc, char* argv[])
 
         // Clear buffer.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glClearColor(0, 0, 0, 0);
+        glClearColor(0, 0, 0, 1);
 
         // Send projection matrix.
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
 
         if (orthographic)
-            glOrtho((float)-screenWidth / 120, (float)screenWidth / 120, (float)-screenHeight / 120, (float)screenHeight / 120, 0.5f, 100.f);
+            glOrtho((float)-screenWidth / 120, (float)screenWidth / 120, (float)-screenHeight / 120, (float)screenHeight / 120, 0.01f, 100.f);
         else
-            gluPerspective(90.f, (float)screenWidth / screenHeight, 0.5f, 100.f);
+            gluPerspective(90.f, (float)screenWidth / screenHeight, 0.01f, 100.f);
         
         // Send modelview matrix.
         glMatrixMode(GL_MODELVIEW);
@@ -145,50 +146,48 @@ int main(int argc, char* argv[])
         glRotatef   (-cameraRot.z, 0.f, 0.f, 1.f);
         glTranslatef(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 
-        // Rotate the model view.
-        static float rotation = 0.f;
-        rotation += 0.5f;
-        // glRotatef(rotation, 1.f, 0.f, 0.f);
-
         // Draw primitive
         glPolygonMode(GL_FRONT_AND_BACK, showWireframe ? GL_LINE : GL_FILL);
+
+        glPushMatrix();
 
         // Draw the gizmo in the center.
         gl::drawGizmo(1);
 
         // Draw the triangle.
-        // glColor3f(227.f/255, 48.f/255, 177.f/255);
-        glTranslatef(2.f, 0.f, 0.f);
-        gl::drawTriangle(0.5f, 1);
+        glTranslatef(2, 0, 0);
+        gl::drawTriangle(1, textures["Cobblestone1"]);
 
         // Draw the quad.
-        glColor3f(1.f, 1.f, 1.f);
-        glTranslatef(1.5f, 0.f, 0.f);
-        gl::drawQuad(0.5f, textures["Cobblestone0"]);
+        glTranslatef(1.5, 0, 0);
+        gl::drawDividedQuad(1, textures["Cobblestone0"]);
 
         // Draw the cube.
-        glColor3f(11.f/255, 213.f/255, 51.f/255);
-        glTranslatef(1.5f, 0.f, 0.f);
-        gl::drawCube(2, 2, 2, 1.f);
+        glTranslatef(1.5, 0, 0);
+        gl::drawCube(1, textures["StoneBricks1"]);
 
         // Draw the cone.
         glColor3f(31.f/255, 189.f/255, 180.f/255);
-        glTranslatef(1.5f, 0.f, 0.f);
-        gl::drawCone(10.f, 0.5f, 1.f);
+        glTranslatef(1.5, 0, 0);
+        gl::drawCone(10, 0.5, 1);
 
         // Draw the sphere.
         glColor3f(111.f/255, 93.f/255, 215.f/255);
-        glTranslatef(2.f, 0.f, 0.f);
-        gl::drawSphere(10.f, 10.f, 1.f);
+        glTranslatef(2, 0, 0);
+        gl::drawSphere(10, 10, 1);
 
         // Draw the point sphere.
-        glColor3f(1.f, 1.f, 1.f);
-        glTranslatef(2.5f, 0.f, 0.f);
-        gl::drawPointSphere(100.f, 10.f, 1.f);
+        glColor3f(1, 1, 1);
+        glTranslatef(2.5, 0, 0);
+        gl::drawPointSphere(100, 10, 1);
+
+        glPopMatrix();
 
         glfwSwapBuffers(window);
     }
 
+    for (auto i = textures.begin(); i != textures.end(); i++)
+        glDeleteTextures(1, &i->second);
     glfwTerminate();
     return 0;
 }
