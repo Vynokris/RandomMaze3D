@@ -35,5 +35,9 @@ extern PFNGLTEXIMAGE2DPROC     glTexImage2D;
 extern PFNGLGENERATEMIPMAPPROC glGenerateMipmap;
 extern PFNGLTEXCOORD2FPROC     glTexCoord2f;
 extern PFNGLPIXELSTOREFPROC    glPixelStoref;
+extern PFNGLLIGHTFPROC         glLightf;
+extern PFNGLLIGHTFVPROC        glLightfv;
+extern PFNGLCOLORMATERIALPROC  glColorMaterial;
+extern PFNGLMATERIALFVPROC     glMaterialfv;
 
 void loadGLFunctions();

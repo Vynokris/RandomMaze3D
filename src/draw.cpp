@@ -1,5 +1,5 @@
 #include "gl.hpp"
-#include "glUtility.hpp"
+#include "maths.hpp"
 #include "draw.hpp"
 
 void gl::drawTriangle(const float& size, const GLuint& texture)
@@ -107,7 +107,7 @@ void gl::drawSubdividedCube(const int& resX, const int& resY, const int& resZ, c
         {
             for (int z = 0; z < resZ + 1; z++)
             {
-                float3 curCoords = { - size / 2 + (size / resX) * x, 
+                vector3f curCoords = { - size / 2 + (size / resX) * x, 
                                      - size / 2 + (size / resY) * y, 
                                      - size / 2 + (size / resZ) * z };
 
@@ -172,10 +172,10 @@ void gl::drawSphere(const int& lon, const int& lat, const float& r)
             float phi0 = ((i+0) / (float)lon) * 2.f * PI;
             float phi1 = ((i+1) / (float)lon) * 2.f * PI;
 
-            float3 c0 = getSphericalCoords(r, theta0, phi0);
-            float3 c1 = getSphericalCoords(r, theta0, phi1);
-            float3 c2 = getSphericalCoords(r, theta1, phi1);
-            float3 c3 = getSphericalCoords(r, theta1, phi0);
+            vector3f c0 = getSphericalCoords(r, theta0, phi0);
+            vector3f c1 = getSphericalCoords(r, theta0, phi1);
+            vector3f c2 = getSphericalCoords(r, theta1, phi1);
+            vector3f c3 = getSphericalCoords(r, theta1, phi0);
 
             glVertex3f(c0.x, c0.y, c0.z);
             glVertex3f(c1.x, c1.y, c1.z);
@@ -204,7 +204,7 @@ void gl::drawPointSphere(const int& lon, const int& lat, const float& r)
         {
             float phi = (i / (float)lon) * 2.f * PI;
 
-            float3 coords = getSphericalCoords(r, theta, phi);
+            vector3f coords = getSphericalCoords(r, theta, phi);
 
             glVertex3f(coords.x, coords.y, coords.z);
         }
@@ -218,7 +218,7 @@ void gl::drawHelperSphere(const float& r, const float& theta, const float& phi)
     gl::drawPointSphere(20, 20, r);
 
     glDisable(GL_DEPTH_TEST);
-    float3 coords = getSphericalCoords(r, theta, phi);
+    vector3f coords = getSphericalCoords(r, theta, phi);
     glBegin(GL_POINTS);
     glColor3f(1, 0, 1);
     glVertex3f(coords.x, coords.y, coords.z);
@@ -240,7 +240,7 @@ void gl::drawCone(const int& res, const float& r, const float& h)
         {
             float theta = ((i + j) / (float)res) * 2.f * PI;
 
-            float3 coords = getSphericalCoords(r, theta, 0);
+            vector3f coords = getSphericalCoords(r, theta, 0);
 
             glVertex3f(coords.x, coords.y, coords.z);
         }
@@ -251,7 +251,7 @@ void gl::drawCone(const int& res, const float& r, const float& h)
         {
             float theta = ((i + j) / (float)res) * 2.f * PI;
 
-            float3 coords = getSphericalCoords(r, theta, 0);
+            vector3f coords = getSphericalCoords(r, theta, 0);
 
             glVertex3f(coords.x, coords.y, coords.z);
         }
