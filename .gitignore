@@ -1,5 +1,3 @@
 **/*.o
 **/*.d
-*.ilk
-*.pdb
 intro_gl*

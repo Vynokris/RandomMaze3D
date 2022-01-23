@@ -49,7 +49,7 @@ GLuint loadTestTexture()
     GLuint texture;
     int width  = 2;
     int height = 2;
-    unsigned char data[width*height*3];
+    unsigned char* data = new unsigned char[width*height*3];
 
     // Write colors to the texture.
     data[0]  = 255; data[1]  = 0;   data[2]  = 0;
@@ -72,5 +72,6 @@ GLuint loadTestTexture()
     glTexImage2D    (GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
+    delete[] data;
     return texture;
 }

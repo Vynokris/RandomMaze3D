@@ -94,7 +94,8 @@ void MazeGenerator::generate()
 
 bool MazeGenerator::isInMaze(vector3f worldCoords)
 {
-    vector2i tileCoords = { (int)(worldCoords.x + startTile.x * tileSize + tileSize/2) / tileSize, (int)(worldCoords.z + height * tileSize) / tileSize };
+    vector2i tileCoords = { (int)(worldCoords.x + startTile.x * tileSize + tileSize/2) / tileSize, 
+                            (int)(worldCoords.z + height      * tileSize)              / tileSize };
     return isPath(tileCoords, true);
 }
 
