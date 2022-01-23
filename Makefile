@@ -10,7 +10,7 @@ PROGRAM   = intro_gl.exe
 CXX       = clang++
 CXXFLAGS += -std=c++17 -D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH=1 -nostdlib
 LDFLAGS   = -Lexternals/lib-vc2019
-LDLIBS    = -lglfw3 -luser32 -lshell32 -lgdi32 -lglu32# -lglfw3dll ./glfw3.dll
+LDLIBS    = -lglfw3 -lglu32 -lgdi32 -luser32 -lshell32# -lglfw3dll -lopengl32
 
 else 
 TARGET ?= $(shell $(CXX) -dumpmachine)

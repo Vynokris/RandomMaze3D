@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
         if (orthographic)
             glOrtho((float)-screenWidth / 120, (float)screenWidth / 120, (float)-screenHeight / 120, (float)screenHeight / 120, 0.01f, 100.f);
         else
-            gluPerspective(90.f, (float)screenWidth / screenHeight, 0.01f, 100.f);
+            gluPerspective(90.f, (float)screenWidth / screenHeight, 0.01f, 500.f);
         
         // Send modelview matrix.
         glMatrixMode(GL_MODELVIEW);
@@ -120,13 +120,11 @@ int main(int argc, char* argv[])
         glLoadIdentity();
 
         // Update the camera and apply its transforms to the modelview.
-        vector3f prevPos = camera.getPos();
+        // vector3f prevPos = camera.getPos();
         camera.update();
-        if (!mazeGen.isInMaze(camera.getPos()))
-            camera.setPos(prevPos);
+        // if (!mazeGen.isInMaze(camera.getPos()))
+        //     camera.setPos(prevPos);
         camera.applyTransforms();
-
-
 
         // Draw primitive.
         glPolygonMode(GL_FRONT_AND_BACK, showWireframe ? GL_LINE : GL_FILL);
