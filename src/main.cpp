@@ -3,13 +3,18 @@
 #include <cmath>
 #include <map>
 #include <string>
+#include <ctime>
 
+#define GLFW_DLL
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
 #include "gl.hpp"
-#include "glUtility.hpp"
+#include "maths.hpp"
+#include "bmpLoader.hpp"
+#include "camera.hpp"
 #include "draw.hpp"
+#include "mazeGen.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -27,36 +32,51 @@ int main(int argc, char* argv[])
     // Add debug flag in case we want to debug it
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
-    GLFWwindow* window = glfwCreateWindow(screenWidth, screenHeight, "OpenGL Intro", nullptr, nullptr);
+    // Create a new glfw window.
+    GLFWwindow* window = glfwCreateWindow(screenWidth, screenHeight, "OpenGL Maze", nullptr, nullptr);
     if (window == nullptr)
     {
         glfwTerminate();
         return -1;
     }
-    
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 
+    // Load the openGL function pointers.
     loadGLFunctions();
 
+    // Print some info logs.
     printf("GLFW_VERSION: %s\n", glfwGetVersionString());
-    printf("GL_VERSION: %s\n",  glGetString(GL_VERSION));
-    printf("GL_VENDOR: %s\n",   glGetString(GL_VENDOR));
-    printf("GL_RENDERER: %s\n", glGetString(GL_RENDERER));
+    printf("GL_VERSION: %s\n",   glGetString(GL_VERSION));
+    printf("GL_VENDOR: %s\n",    glGetString(GL_VENDOR));
+    printf("GL_RENDERER: %s\n",  glGetString(GL_RENDERER));
 
+    // Create the camera.
+    Camera camera(window, { 0, 0, -5 }, { 0, 0, 0 }, 0.5);
     bool showWireframe = false;
     bool orthographic  = false;
-    float speed = 0.1f;
-    double mousePos[2];
-    glfwGetCursorPos(window, &mousePos[0], &mousePos[1]);
-    float3 cameraPos = { 5.5f, 0, 5.5f };
-    float3 cameraRot = { 0.f, 0.f, 0.f };
 
+    // Create the maze generator.
+    MazeGenerator mazeGen(21, 21);
+    srand(time(NULL));
+    mazeGen.generate();
+
+    // Load the textures.
     std::map<std::string, GLuint> textures;
-    std::string textureNames[5] = { "Cobblestone0", "Cobblestone1", "StoneBricks0", "StoneBricks1", "Stonebricks2" };
+    std::string textureNames[] = { "wall", "floor", "ceiling" };
     for (long unsigned int i = 0; i < sizeof(textureNames) / sizeof(textureNames[0]); i++)
-        textures[textureNames[i]] = loadTexture(("Resources/Art/" + textureNames[i] + ".bmp").c_str(), 16, 16);
+        textures[textureNames[i]] = loadTexture(("Resources/Art/" + textureNames[i] + ".bmp").c_str());
+    
+    // Load the decoration textures.
+    /*
+    std::map<std::string, GLuint> decorations;
+    std::string decorationNames[] = { "vines" };
+    for (long unsigned int i = 0; i < sizeof(textureNames) / sizeof(textureNames[0]); i++)
+        decorations[decorationNames[i]] = loadTexture(("Resources/Art/" + decorationNames[i] + ".bmp").c_str());
+    */
 
+
+    // Main loop.
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -77,51 +97,6 @@ int main(int argc, char* argv[])
         else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
             orthographic = true;
 
-        // WASD, space & shift keys to move the camera.
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-            float3 lookAtPoint = getSphericalCoords(speed, DEG2RAD*(360 - cameraRot.y + 90), DEG2RAD*(360 - cameraRot.x - 90));
-            cameraPos.x += lookAtPoint.x; cameraPos.y += lookAtPoint.y; cameraPos.z += lookAtPoint.z;
-        }
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-            float3 lookAtPoint = getSphericalCoords(speed, DEG2RAD*(360 - cameraRot.y + 90), DEG2RAD*(360 - cameraRot.x - 90));
-            cameraPos.x -= lookAtPoint.x; cameraPos.y -= lookAtPoint.y; cameraPos.z -= lookAtPoint.z;
-        }
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-            float3 lookAtPoint = getSphericalCoords(speed, DEG2RAD*90, DEG2RAD*(360 - cameraRot.x));
-            cameraPos.x -= lookAtPoint.x; cameraPos.y -= lookAtPoint.y; cameraPos.z -= lookAtPoint.z;
-        }
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-            float3 lookAtPoint = getSphericalCoords(speed, DEG2RAD*90, DEG2RAD*(360 - cameraRot.x));
-            cameraPos.x += lookAtPoint.x; cameraPos.y += lookAtPoint.y; cameraPos.z += lookAtPoint.z;
-        }
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            float3 lookAtPoint = getSphericalCoords(speed, DEG2RAD*(360 - cameraRot.y), DEG2RAD*(360 - cameraRot.x - 90));
-            cameraPos.x += lookAtPoint.x; cameraPos.y += lookAtPoint.y; cameraPos.z += lookAtPoint.z;
-        }
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-            float3 lookAtPoint = getSphericalCoords(speed, DEG2RAD*(360 - cameraRot.y), DEG2RAD*(360 - cameraRot.x - 90));
-            cameraPos.x -= lookAtPoint.x; cameraPos.y -= lookAtPoint.y; cameraPos.z -= lookAtPoint.z;
-        }
-
-        // Mouse to rotate the camera on X and Y.
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-        {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
-            double newMousePos[2]; 
-            glfwGetCursorPos(window, &newMousePos[0], &newMousePos[1]);
-
-            cameraRot.x -= (newMousePos[0] - mousePos[0]) / 7;
-            cameraRot.y -= (newMousePos[1] - mousePos[1]) / 7;
-
-            glfwSetCursorPos(window, mousePos[0], mousePos[1]);
-        }
-        else
-        {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            glfwGetCursorPos(window, &mousePos[0], &mousePos[1]);
-        }
-
         // Clear buffer.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0, 0, 0, 1);
@@ -130,6 +105,7 @@ int main(int argc, char* argv[])
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
 
+        // Set the projection to perspective or orthographic.
         if (orthographic)
             glOrtho((float)-screenWidth / 120, (float)screenWidth / 120, (float)-screenHeight / 120, (float)screenHeight / 120, 0.01f, 100.f);
         else
@@ -138,17 +114,32 @@ int main(int argc, char* argv[])
         // Send modelview matrix.
         glMatrixMode(GL_MODELVIEW);
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_LIGHTING);
+        glEnable(GL_COLOR_MATERIAL);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
         glLoadIdentity();
 
-        // Move the modelview matrix to match the camera position and rotation.
-        glRotatef   (-cameraRot.y, 1.f, 0.f, 0.f);
-        glRotatef   (-cameraRot.x, 0.f, 1.f, 0.f);
-        glRotatef   (-cameraRot.z, 0.f, 0.f, 1.f);
-        glTranslatef(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+        // Update the camera and apply its transforms to the modelview.
+        vector3f prevPos = camera.getPos();
+        camera.update();
+        if (!mazeGen.isInMaze(camera.getPos()))
+            camera.setPos(prevPos);
+        camera.applyTransforms();
 
-        // Draw primitive
+
+
+        // Draw primitive.
         glPolygonMode(GL_FRONT_AND_BACK, showWireframe ? GL_LINE : GL_FILL);
 
+        // Create an ambient light.
+        GLfloat light1_ambient[]  = { 3.5, 3.5, 3.5, 1 };
+        glLightfv(GL_LIGHT1, GL_AMBIENT,  light1_ambient);
+        glEnable (GL_LIGHT1);
+
+        // Render the maze geometry.
+        mazeGen.render(textures);
+
+        /*
         glPushMatrix();
 
         // Draw the gizmo in the center.
@@ -167,25 +158,27 @@ int main(int argc, char* argv[])
         gl::drawCube(1, textures["StoneBricks1"]);
 
         // Draw the cone.
-        glColor3f(31.f/255, 189.f/255, 180.f/255);
         glTranslatef(1.5, 0, 0);
+        glColor3f(31.f/255, 189.f/255, 180.f/255);
         gl::drawCone(10, 0.5, 1);
 
         // Draw the sphere.
-        glColor3f(111.f/255, 93.f/255, 215.f/255);
         glTranslatef(2, 0, 0);
-        gl::drawSphere(10, 10, 1);
+        glColor3f(111.f/255, 93.f/255, 215.f/255);
+        gl::drawSphere(50, 25, 1);
 
         // Draw the point sphere.
-        glColor3f(1, 1, 1);
         glTranslatef(2.5, 0, 0);
+        glColor3f(1, 1, 1);
         gl::drawPointSphere(100, 10, 1);
 
         glPopMatrix();
+        */
 
         glfwSwapBuffers(window);
     }
 
+    // Unload the textures and exit.
     for (auto i = textures.begin(); i != textures.end(); i++)
         glDeleteTextures(1, &i->second);
     glfwTerminate();

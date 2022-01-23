@@ -1,31 +1,28 @@
-#include "glUtility.hpp"
+#include "bmpLoader.hpp"
 
-#include <cmath>
 #include <cstdio>
+#include <cmath>
 
-
-float3 getSphericalCoords(const float& r, const float& theta, const float& phi)
+GLuint loadTexture(const char* filename)
 {
-    return { r * sinf(theta) * cosf(phi),
-             r * cosf(theta),
-             r * sinf(theta) * sinf(phi)
-    };
-}
-
-GLuint loadTexture(const char* filename, const int& width, const int& height)
-{
-    // Create the texture, its width and height, and its data.
+    // Create the texture and the bmp header object.
     GLuint texture;
-    unsigned char data[width*height*3];
+    BmpHeader bmpHeader;
 
     // Open the texture file.
     FILE* f;
     f = fopen(filename, "rb");
     if (f == NULL) return 0;
 
+    // Read the file metadata.
+    fread(&bmpHeader, 54, 1, f);
+    if (bmpHeader.fileType != 0x4D42 || bmpHeader.bitsPerPixel != 24)
+        return 0;
+
     // Read the file data and close it.
-    fseek(f, 54, 0);
-    fread(data, width * height * 3, 1, f);
+    unsigned char* data = new unsigned char[bmpHeader.sizeOfBitmap];
+    fseek(f, bmpHeader.dataOffset, 0);
+    fread(data, bmpHeader.sizeOfBitmap, 1, f);
     fclose(f);
 
     // Allocate a new texture and bind it to a 2D target.
@@ -39,9 +36,10 @@ GLuint loadTexture(const char* filename, const int& width, const int& height)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_REPEAT);
 
     // Add the file data onto the texture and free the data.
-    glTexImage2D    (GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+    glTexImage2D    (GL_TEXTURE_2D, 0, GL_RGB, abs(bmpHeader.width), abs(bmpHeader.height), 0, GL_BGR, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
+    delete[] data;
     return texture;
 }
 

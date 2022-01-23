@@ -32,6 +32,10 @@ PFNGLTEXIMAGE2DPROC     glTexImage2D     = nullptr;
 PFNGLGENERATEMIPMAPPROC glGenerateMipmap = nullptr;
 PFNGLTEXCOORD2FPROC     glTexCoord2f     = nullptr;
 PFNGLPIXELSTOREFPROC    glPixelStoref    = nullptr;
+PFNGLLIGHTFPROC         glLightf         = nullptr;
+PFNGLLIGHTFVPROC        glLightfv        = nullptr;
+PFNGLCOLORMATERIALPROC  glColorMaterial  = nullptr;
+PFNGLMATERIALFVPROC     glMaterialfv     = nullptr;
 
 void loadGLFunctions()
 {
@@ -64,4 +68,8 @@ void loadGLFunctions()
     glGenerateMipmap = (PFNGLGENERATEMIPMAPPROC)glfwGetProcAddress("glGenerateMipmap");
     glTexCoord2f     = (PFNGLTEXCOORD2FPROC)    glfwGetProcAddress("glTexCoord2f");
     glPixelStoref    = (PFNGLPIXELSTOREFPROC)   glfwGetProcAddress("glPixelStoref");
+    glLightf         = (PFNGLLIGHTFPROC)        glfwGetProcAddress("glLightf");
+    glLightfv        = (PFNGLLIGHTFVPROC)       glfwGetProcAddress("glLightfv");
+    glColorMaterial  = (PFNGLCOLORMATERIALPROC) glfwGetProcAddress("glColorMaterial");
+    glMaterialfv     = (PFNGLMATERIALFVPROC)    glfwGetProcAddress("glMaterialfv");
 }
