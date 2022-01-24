@@ -39,5 +39,6 @@ extern PFNGLLIGHTFPROC         glLightf;
 extern PFNGLLIGHTFVPROC        glLightfv;
 extern PFNGLCOLORMATERIALPROC  glColorMaterial;
 extern PFNGLMATERIALFVPROC     glMaterialfv;
+extern PFNGLNORMAL3FPROC       glNormal3f;
 
 void loadGLFunctions();

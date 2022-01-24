@@ -71,7 +71,22 @@ vector3f Camera::getPos()
     return pos;
 }
 
+vector3f Camera::getRot()
+{
+    return rot;
+}
+
+vector3f Camera::getForwardVec()
+{
+    return getSphericalCoords(1, DEG2RAD*(360 - rot.y + 90), DEG2RAD*(360 - rot.x - 90));
+}
+
 void Camera::setPos(vector3f coords)
 {
     pos = coords;
+}
+
+void Camera::setRot(vector3f angles)
+{
+    rot = angles;
 }

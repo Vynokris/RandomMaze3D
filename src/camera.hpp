@@ -26,8 +26,12 @@ public:
     // Applies the camera's transforms on the modelview.
     void applyTransforms();
 
-    // Get the camera's postion.
+    // ---- GETTERS ---- //
     vector3f getPos();
-    // Set the camera's postion.
+    vector3f getRot();
+    vector3f getForwardVec();
+
+    // ---- SETTERS ---- //
     void setPos(vector3f coords);
+    void setRot(vector3f angles);
 };

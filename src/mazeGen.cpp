@@ -90,6 +90,34 @@ void MazeGenerator::generate()
         makePath(coords);
         (i == 0 ? endTile : startTile) = coords;
     }
+
+    // Create random rooms.
+    vector2i roomCoords[5] = {
+        {             2,              2 },
+        { (width-1) - 2,              2 },
+        {             2, (height-1) - 2 },
+        { (width-1) - 2, (height-1) - 2 },
+        {  width/2,       height/2      }
+    };
+    for (int i = 0; i < 5; i++)
+    {
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                makePath({ roomCoords[i].x + x, roomCoords[i].y + y });
+            }
+        }
+    }
+
+    //! DEBUG: print the maze.
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            printf("%s%d ", (isPath({x, y}) ? "\x1b[32m" : "\x1b[31m"), maze[y][x]);
+        }
+        printf("\n");
+    }
+    printf("\x1b[0m");
 }
 
 bool MazeGenerator::isInMaze(vector3f worldCoords)
@@ -97,6 +125,17 @@ bool MazeGenerator::isInMaze(vector3f worldCoords)
     vector2i tileCoords = { (int)(worldCoords.x + startTile.x * tileSize + tileSize/2) / tileSize, 
                             (int)(worldCoords.z + height      * tileSize)              / tileSize };
     return isPath(tileCoords, true);
+}
+
+vector3f MazeGenerator::backToMazeVec(vector3f worldCoords)
+{
+    vector2i tileCoords = { roundInt(worldCoords.x + startTile.x * tileSize + tileSize/2) / tileSize, 
+                            roundInt(worldCoords.z + height      * tileSize)              / tileSize };
+    vector3f tileWorldCoords = { (tileCoords.x - startTile.x) * tileSize, 0, (tileCoords.y - height) * tileSize + tileSize/2 };
+    glPushMatrix();
+    glTranslatef(tileWorldCoords.x, 5, tileWorldCoords.y);
+    gl::drawCube(0.2, 2);
+    glPopMatrix();
 }
 
 void MazeGenerator::render(std::map<std::string, GLuint>& textures)
@@ -135,9 +174,10 @@ void MazeGenerator::render(std::map<std::string, GLuint>& textures)
                 }
 
                 // Render the upper and lower faces.
-                glRotatef(90, 1, 0, 0);
-                glTranslatef(0, -tileSize/2, -tileSize*1.5);
+                glRotatef(-90, 1, 0, 0);
+                glTranslatef(0, tileSize/2, tileSize*1.5);
                 gl::drawDividedQuad(tileSize, textures["ceiling"]);
+                glRotatef(180, 1, 0, 0);
                 glTranslatef(0, 0, tileSize*2);
                 gl::drawDividedQuad(tileSize, textures["floor"]);
             }
