@@ -33,4 +33,20 @@ struct vector3f
     float z;
 };
 
+// Get coordinates of a point on a sphere of radius r.
 vector3f getSphericalCoords(const float& r, const float& theta, const float& phi);
+
+// Rounds the given value to the nearest int.
+int roundInt(double val);
+
+// Rounds down the given value.
+int floorInt(double val);
+
+// Rounds up the given value.
+int ceilInt(double val);
+
+// Returns the sqare power of the given value.
+double sqpow(double val);
+
+// Returns 1 if the given value is positive or null, and -1 if it is negative.
+int signOf(double val);

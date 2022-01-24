@@ -22,12 +22,9 @@ struct BmpHeader
     int32_t  verticalResolution;
     uint32_t colorsUsed;
     uint32_t colorsImportant;
-    uint32_t redMask;
-    uint32_t greenMask;
-    uint32_t blueMask;
 };
 #pragma pack(pop)
 
-GLuint loadTexture(const char* filename);
+GLuint loadBmpTexture(const char* filename);
 
 GLuint loadTestTexture();

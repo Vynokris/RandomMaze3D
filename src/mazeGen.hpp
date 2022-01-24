@@ -36,6 +36,9 @@ public:
     // Check if the given coordinates are in the maze walls.
     bool isInMaze(vector3f worldCoords);
 
+    // Returns the smallest vector that moves the player in the maze.
+    vector3f backToMazeVec(vector3f worldCoords);
+
     // Render the maze.
     void render(std::map<std::string, GLuint>& textures);
 

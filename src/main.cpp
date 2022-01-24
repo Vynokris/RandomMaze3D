@@ -18,8 +18,8 @@
 
 int main(int argc, char* argv[])
 {
-    int screenWidth  = 800;
-    int screenHeight = 600;
+    int screenWidth  = 2550;
+    int screenHeight = 1440;
 
     if (!glfwInit())
         return -1;
@@ -52,12 +52,12 @@ int main(int argc, char* argv[])
     printf("GL_RENDERER: %s\n",  glGetString(GL_RENDERER));
 
     // Create the camera.
-    Camera camera(window, { 0, 0, -5 }, { 0, 0, 0 }, 0.5);
+    Camera camera(window, { 0, 10, -5 }, { 0, 0, 0 }, 0.5);
     bool showWireframe = false;
     bool orthographic  = false;
 
     // Create the maze generator.
-    MazeGenerator mazeGen(21, 21);
+    MazeGenerator mazeGen(31, 31);
     srand(time(NULL));
     mazeGen.generate();
 
@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
     std::map<std::string, GLuint> textures;
     std::string textureNames[] = { "wall", "floor", "ceiling" };
     for (long unsigned int i = 0; i < sizeof(textureNames) / sizeof(textureNames[0]); i++)
-        textures[textureNames[i]] = loadTexture(("Resources/Art/" + textureNames[i] + ".bmp").c_str());
+        textures[textureNames[i]] = loadBmpTexture(("Resources/Art/" + textureNames[i] + ".bmp").c_str());
     
     // Load the decoration textures.
     /*
@@ -75,6 +75,22 @@ int main(int argc, char* argv[])
         decorations[decorationNames[i]] = loadTexture(("Resources/Art/" + decorationNames[i] + ".bmp").c_str());
     */
 
+    // Set some openGL parameters.
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_LIGHTING);
+
+    // Create the camera light.
+    GLfloat light1_ambient []            = { 6, 5.5, 3, 1 };
+    GLfloat light1_position[]            = { 0, camera.getPos().y, 0, 1 };
+    GLfloat light1_constant_attenuation  = 1;
+    GLfloat light1_linear_attenuation    = 0.05;
+    GLfloat light1_quadratic_attenuation = 0.01;
+    glLightfv(GL_LIGHT1, GL_AMBIENT,               light1_ambient);
+    glLightfv(GL_LIGHT1, GL_POSITION,              light1_position);
+    glLightf (GL_LIGHT1, GL_CONSTANT_ATTENUATION,  light1_constant_attenuation);
+    glLightf (GL_LIGHT1, GL_LINEAR_ATTENUATION,    light1_linear_attenuation);
+    glLightf (GL_LIGHT1, GL_QUADRATIC_ATTENUATION, light1_quadratic_attenuation);
+    glEnable (GL_LIGHT1);
 
     // Main loop.
     while (!glfwWindowShouldClose(window))
@@ -109,33 +125,32 @@ int main(int argc, char* argv[])
         if (orthographic)
             glOrtho((float)-screenWidth / 120, (float)screenWidth / 120, (float)-screenHeight / 120, (float)screenHeight / 120, 0.01f, 100.f);
         else
-            gluPerspective(90.f, (float)screenWidth / screenHeight, 0.01f, 500.f);
+            gluPerspective(85.f, (float)screenWidth / screenHeight, 0.01f, 100.f);
         
         // Send modelview matrix.
         glMatrixMode(GL_MODELVIEW);
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_LIGHTING);
-        glEnable(GL_COLOR_MATERIAL);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
         glLoadIdentity();
 
-        // Update the camera and apply its transforms to the modelview.
-        // vector3f prevPos = camera.getPos();
+        // Update the camera with user input and apply its transforms to the modelview.
         camera.update();
-        // if (!mazeGen.isInMaze(camera.getPos()))
-        //     camera.setPos(prevPos);
         camera.applyTransforms();
+        if (!mazeGen.isInMaze(camera.getPos())) {
+            // printf("The player is not in the maze.\n");
+        }
+        mazeGen.backToMazeVec(camera.getPos());
 
         // Draw primitive.
         glPolygonMode(GL_FRONT_AND_BACK, showWireframe ? GL_LINE : GL_FILL);
 
+        // Render the maze geometry.
+        mazeGen.render(textures);
+
         // Create an ambient light.
+        /*
         GLfloat light1_ambient[]  = { 3.5, 3.5, 3.5, 1 };
         glLightfv(GL_LIGHT1, GL_AMBIENT,  light1_ambient);
         glEnable (GL_LIGHT1);
-
-        // Render the maze geometry.
-        mazeGen.render(textures);
+        */
 
         /*
         glPushMatrix();

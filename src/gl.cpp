@@ -36,6 +36,7 @@ PFNGLLIGHTFPROC         glLightf         = nullptr;
 PFNGLLIGHTFVPROC        glLightfv        = nullptr;
 PFNGLCOLORMATERIALPROC  glColorMaterial  = nullptr;
 PFNGLMATERIALFVPROC     glMaterialfv     = nullptr;
+PFNGLNORMAL3FPROC       glNormal3f       = nullptr;
 
 void loadGLFunctions()
 {
@@ -72,4 +73,5 @@ void loadGLFunctions()
     glLightfv        = (PFNGLLIGHTFVPROC)       glfwGetProcAddress("glLightfv");
     glColorMaterial  = (PFNGLCOLORMATERIALPROC) glfwGetProcAddress("glColorMaterial");
     glMaterialfv     = (PFNGLMATERIALFVPROC)    glfwGetProcAddress("glMaterialfv");
+    glNormal3f       = (PFNGLNORMAL3FPROC)      glfwGetProcAddress("glNormal3f");
 }

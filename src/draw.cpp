@@ -47,7 +47,7 @@ void gl::drawQuad(const float& size, const GLuint& texture)
     }
 }
 
-void gl::drawDividedQuad(const float& size, const GLuint& texture)
+void gl::drawDividedQuad(const float& size, const GLuint& texture, bool negateNormals)
 {
     if (texture)
     {
@@ -57,13 +57,13 @@ void gl::drawDividedQuad(const float& size, const GLuint& texture)
 
     glBegin(GL_TRIANGLES);
     {
-        glTexCoord2f(0, 0); glVertex3f(-size/2,  size/2, 0.f);
-        glTexCoord2f(0, 1); glVertex3f(-size/2, -size/2, 0.f);
-        glTexCoord2f(1, 0); glVertex3f( size/2,  size/2, 0.f);
+        glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(0, 0); glVertex3f(-size/2,  size/2, 0.f);
+        glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(0, 1); glVertex3f(-size/2, -size/2, 0.f);
+        glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(1, 0); glVertex3f( size/2,  size/2, 0.f);
         
-        glTexCoord2f(1, 1); glVertex3f( size/2, -size/2, 0.f);
-        glTexCoord2f(1, 0); glVertex3f( size/2,  size/2, 0.f);
-        glTexCoord2f(0, 1); glVertex3f(-size/2, -size/2, 0.f);
+        glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(1, 1); glVertex3f( size/2, -size/2, 0.f);
+        glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(1, 0); glVertex3f( size/2,  size/2, 0.f);
+        glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(0, 1); glVertex3f(-size/2, -size/2, 0.f);
     }
     glEnd();
 
@@ -84,13 +84,13 @@ void gl::drawCube(const float& size, const GLuint& texture)
     {
         glRotatef(-90, 0, 1, 0);
         glTranslatef(-size/2, 0, size/2);
-        drawDividedQuad(size, texture);
+        drawDividedQuad(size, texture, true);
     }
 
     // Render the upper and lower faces.
     glRotatef(90, 1, 0, 0);
     glTranslatef(0, -size/2, -size/2);
-    drawDividedQuad(size, texture);
+    drawDividedQuad(size, texture, true);
     glTranslatef(0, 0, size);
     drawDividedQuad(size, texture);
 

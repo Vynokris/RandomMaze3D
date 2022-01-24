@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <cmath>
 
-GLuint loadTexture(const char* filename)
+GLuint loadBmpTexture(const char* filename)
 {
     // Create the texture and the bmp header object.
     GLuint texture;
