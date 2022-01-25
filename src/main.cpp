@@ -51,6 +51,10 @@ int main(int argc, char* argv[])
     printf("GL_VENDOR: %s\n",    glGetString(GL_VENDOR));
     printf("GL_RENDERER: %s\n",  glGetString(GL_RENDERER));
 
+    // Set some openGL parameters.
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_LIGHTING);
+
     // Create the camera.
     Camera camera(window, { 0, 10, -5 }, { 0, 0, 0 }, 0.5);
     bool showWireframe = false;
@@ -75,9 +79,9 @@ int main(int argc, char* argv[])
         decorations[decorationNames[i]] = loadTexture(("Resources/Art/" + decorationNames[i] + ".bmp").c_str());
     */
 
-    // Set some openGL parameters.
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_LIGHTING);
+    // Create an ambient light.
+    GLfloat light2_ambient[]  = { 1, 1, 1, 1 };
+    glLightfv(GL_LIGHT2, GL_AMBIENT,  light2_ambient);
 
     // Create the camera light.
     GLfloat light1_ambient []            = { 6, 5.5, 3, 1 };
@@ -112,6 +116,12 @@ int main(int argc, char* argv[])
             orthographic = false;
         else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
             orthographic = true;
+        
+        // 5-6 to toggle the light 2.
+        if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS)
+            glDisable(GL_LIGHT2);
+        if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS)
+            glEnable(GL_LIGHT2);
 
         // Clear buffer.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -123,7 +133,7 @@ int main(int argc, char* argv[])
 
         // Set the projection to perspective or orthographic.
         if (orthographic)
-            glOrtho((float)-screenWidth / 120, (float)screenWidth / 120, (float)-screenHeight / 120, (float)screenHeight / 120, 0.01f, 100.f);
+            glOrtho((float)-screenWidth / 120, (float)screenWidth / 120, (float)-screenHeight / 120, (float)screenHeight / 120, 0.f, 100.f);
         else
             gluPerspective(85.f, (float)screenWidth / screenHeight, 0.01f, 100.f);
         
@@ -133,24 +143,18 @@ int main(int argc, char* argv[])
 
         // Update the camera with user input and apply its transforms to the modelview.
         camera.update();
-        camera.applyTransforms();
+        for (int x = -1; x <= 1; x++);
         if (!mazeGen.isInMaze(camera.getPos())) {
-            // printf("The player is not in the maze.\n");
+            vector3f vec = mazeGen.backToMazeVec(camera.getPos());
+            camera.setPos({ camera.getPos().x + vec.x, camera.getPos().y, camera.getPos().z + vec.z });
         }
-        mazeGen.backToMazeVec(camera.getPos());
+        camera.applyTransforms();
 
         // Draw primitive.
         glPolygonMode(GL_FRONT_AND_BACK, showWireframe ? GL_LINE : GL_FILL);
 
         // Render the maze geometry.
         mazeGen.render(textures);
-
-        // Create an ambient light.
-        /*
-        GLfloat light1_ambient[]  = { 3.5, 3.5, 3.5, 1 };
-        glLightfv(GL_LIGHT1, GL_AMBIENT,  light1_ambient);
-        glEnable (GL_LIGHT1);
-        */
 
         /*
         glPushMatrix();
