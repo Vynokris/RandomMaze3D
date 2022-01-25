@@ -1,5 +1,6 @@
 #include "mazeGen.hpp"
 #include "draw.hpp"
+#include <cmath>
 #include <algorithm>
 #include <cstdio>
 
@@ -111,6 +112,7 @@ void MazeGenerator::generate()
     }
 
     //! DEBUG: print the maze.
+    /*
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             printf("%s%d ", (isPath({x, y}) ? "\x1b[32m" : "\x1b[31m"), maze[y][x]);
@@ -118,6 +120,7 @@ void MazeGenerator::generate()
         printf("\n");
     }
     printf("\x1b[0m");
+    */
 }
 
 bool MazeGenerator::isInMaze(vector3f worldCoords)
@@ -129,13 +132,44 @@ bool MazeGenerator::isInMaze(vector3f worldCoords)
 
 vector3f MazeGenerator::backToMazeVec(vector3f worldCoords)
 {
-    vector2i tileCoords = { roundInt(worldCoords.x + startTile.x * tileSize + tileSize/2) / tileSize, 
-                            roundInt(worldCoords.z + height      * tileSize)              / tileSize };
-    vector3f tileWorldCoords = { (tileCoords.x - startTile.x) * tileSize, 0, (tileCoords.y - height) * tileSize + tileSize/2 };
-    glPushMatrix();
-    glTranslatef(tileWorldCoords.x, 5, tileWorldCoords.y);
-    gl::drawCube(0.2, 2);
-    glPopMatrix();
+    // Get the coordinates of the tile the player is in.
+    vector2i tileCoords = { (int)clamp(roundInt(worldCoords.x + startTile.x * tileSize + tileSize/2) / tileSize, 2, width -2), 
+                            (int)clamp(roundInt(worldCoords.z + height      * tileSize)              / tileSize, 1, height-2) };
+    
+    // Get the nearest path tile to the player.
+    vector2i closestPathTile;
+    vector2f closestPathWorld;
+    double   closestPathDist = -1;
+    for (int y = -1; y <= 1; y++) 
+    {
+        for (int x = -1; x <= 1; x++) 
+        {
+            if (isPath({ tileCoords.x + x, tileCoords.y + y }))
+            {
+                vector2f curTileWorldCoords = { (float)(tileCoords.x + x - startTile.x) * tileSize, 
+                                                (float)(tileCoords.y + y - height)      * tileSize + tileSize/2 };
+                double curTileDist = sqrt(sqpow(curTileWorldCoords.x - worldCoords.x) + sqpow(curTileWorldCoords.y - worldCoords.z));
+
+                if (curTileDist < closestPathDist || closestPathDist == -1)
+                {
+                    closestPathTile  = { tileCoords.x + x, tileCoords.y + y };
+                    closestPathWorld = curTileWorldCoords;
+                    closestPathDist  = curTileDist;
+                }
+            }
+        }
+    }
+
+    // Do some trigonometry to find the length of the vector that goes from the tile to the wall, passing through the player.
+    vector2f closestPathToPos = vector2fFromPoints(closestPathWorld, { worldCoords.x, worldCoords.z });
+    float    angle            = std::abs((vector2fAngle(closestPathToPos) + PI/4) - (PI/2) * floor((vector2fAngle(closestPathToPos) + PI/4) / (PI/2)) - PI/4);
+    float    distance         = (tileSize / 2) / cos(angle) - 0.07;
+
+    // Find the vector that brings the player back in bounds.
+    vector2f backToMazeVector = vector2fFromPoints({ worldCoords.x, worldCoords.z }, closestPathWorld);
+             backToMazeVector = { backToMazeVector.x + vector2fNormalize(closestPathToPos).x * distance, backToMazeVector.y + vector2fNormalize(closestPathToPos).y * distance };
+
+    return { backToMazeVector.x, 0, backToMazeVector.y };
 }
 
 void MazeGenerator::render(std::map<std::string, GLuint>& textures)

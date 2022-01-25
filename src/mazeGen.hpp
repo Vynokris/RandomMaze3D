@@ -18,8 +18,8 @@ private:
     vector2i choice(const std::vector<vector2i>& array);                   // Returns a random element in the given array.
 
 public:
-    int width  = 15;   // The width  of the maze.
-    int height = 15;   // The height of the maze.
+    int width    = 15; // The width  of the maze.
+    int height   = 15; // The height of the maze.
     int tileSize = 10; // The size of each maze tile.
     std::vector<std::vector<int>> maze; // 2D array that represents the maze's data.
 

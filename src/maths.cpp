@@ -1,6 +1,8 @@
 #include "maths.hpp"
 
 #include <cmath>
+#include <cassert>
+using namespace std;
 
 
 // Get coordinates of a point on a sphere of radius r.
@@ -26,3 +28,79 @@ double sqpow(double val) { return val * val; }
 
 // Returns 1 if the given value is positive or null, and -1 if it is negative.
 int signOf(double val)   { if (val == 0) return 1; return val / abs((int)val); }
+
+// Clamps the given value to be superior or equal to the minimum value and inferior or equal to the maximum value.
+double clamp(double val, double min, double max)
+{
+    assert (min <= max); 
+    if (val < min) val = min;
+    if (val > max) val = max;
+    return val;
+}
+
+// Clamps the given value to be inferior or equal to the maximum value.
+double clampUnder(double val, double max) { if (val > max) val = max; return val; }
+
+// Clamps the given value to be superior or equal to the minimum value.
+double clampAbove(double val, double min) { if (val < min) val = min; return val; }
+
+// Linear interpoation between the given values.
+double lerp(double val, double start, double end)
+{
+    return start + val * (end - start);
+}
+
+// Remaps the given value from one range to another.
+double remap(double val, double inputStart, double inputEnd, double outputStart, double outputEnd)
+{
+    return outputStart + (val - inputStart) * (outputEnd - outputStart) / (inputEnd - inputStart);
+}
+
+
+
+// Get the angle of a 2D vector.
+float vector2fAngle(vector2f v)
+{
+    return (float)copysign(acos((double)vector2fNormalize(v).x), asin((double)vector2fNormalize(v).y));
+}
+
+// Create a 2D vector from 2 2D points.
+vector2f vector2fFromPoints(vector2f p1, vector2f p2)
+{
+    return { p2.x - p1.x, p2.y - p1.y };
+}
+
+// Normalize a 2D vector.
+vector2f vector2fNormalize(vector2f v)
+{
+    float length = sqrt(sqpow(v.x) + sqpow(v.y));
+    return { v.x / length, v.y / length };
+}
+
+// Resize a 3D vector.
+vector3f vector3fResize(vector3f v, float size)
+{
+    v = vector3fNormalize(v);
+    return { v.x * size, v.y * size, v.z * size };
+}
+
+// Normalize a 3D vector.
+vector3f vector3fNormalize(vector3f v)
+{
+    float length = sqrt(sqpow(v.x) + sqpow(v.y) + sqpow(v.z));
+    return { v.x / length, v.y / length, v.z / length };
+}
+
+// 3D vector dot product.
+float vector3fDot(vector3f v1, vector3f v2)
+{
+    return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+
+// Linear interpolation between two 3D points.
+vector3f vector3fLerp(float val, vector3f start, vector3f end)
+{
+    return { start.x + val * (end.x - start.x), 
+             start.y + val * (end.y - start.y), 
+             start.z + val * (end.z - start.z) };
+}
