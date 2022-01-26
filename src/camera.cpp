@@ -47,6 +47,7 @@ void Camera::update()
 
         rot.x -= (newMousePos.x - mousePos.x) / 7;
         rot.y -= (newMousePos.y - mousePos.y) / 7;
+        rot.y  = clamp(rot.y, -90, 90);
 
         glfwSetCursorPos(window, mousePos.x, mousePos.y);
     }

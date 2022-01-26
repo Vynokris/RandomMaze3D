@@ -3,6 +3,7 @@
 #include <cmath>
 #include <algorithm>
 #include <cstdio>
+#include <ctime>
 
 void MazeGenerator::makePath(const vector2i& coords)
 {
@@ -85,7 +86,7 @@ void MazeGenerator::generate()
     // Generate the entrance and exit.
     for (int i = 0; i < 2; i++)
     {
-        vector2i coords = { rand() % (width - 2) + 1, (height - 1) * i };
+        vector2i coords = { rand() % (width - 12) + 6, (height - 1) * i };
         while (maze[(i == 0 ? 1 : height - 2)][coords.x] == 0)
             coords.x = (coords.x + 1) % width;
         makePath(coords);
@@ -100,10 +101,8 @@ void MazeGenerator::generate()
     roomCoords[4] = {  width/2,       height/2      };
 
     // Create the 5 rooms.
-    for (int i = 0; i < 5; i++)
-    {
-        for (int x = -1; x <= 1; x++)
-        {
+    for (int i = 0; i < 5; i++) {
+        for (int x = -1; x <= 1; x++) {
             for (int y = -1; y <= 1; y++)
             {
                 makePath({ roomCoords[i].x + x, roomCoords[i].y + y });
@@ -127,12 +126,16 @@ bool MazeGenerator::isInMaze(vector3f worldCoords)
 {
     vector2i tileCoords = { (int)(worldCoords.x + startTile.x * tileSize + tileSize/2) / tileSize, 
                             (int)(worldCoords.z + height      * tileSize)              / tileSize };
-    
-    // Used to check collisions with chests.
+
+    // Check collisions with chests.
     bool isRoom = false;
     for (int i = 0; i < 5; i++)
         if (tileCoords.x == roomCoords[i].x && tileCoords.y == roomCoords[i].y)
             isRoom = true;
+    
+    // Fix negative collisions (they are broken because of the integer rounding).
+    if ((worldCoords.z + height * tileSize) / tileSize < 0)
+        isRoom = true;
 
     return isPath(tileCoords, true) && !isRoom;
 }
@@ -188,6 +191,11 @@ vector3f MazeGenerator::backToMazeVec(vector3f worldCoords)
 
 void MazeGenerator::render(std::map<std::string, GLuint>& textures, const bool& allChestsOpened)
 {
+    // Set a constant seed to have consistant random textures across all game frames.
+    srand(0);
+
+    // I use this to determine which texture to use.
+    int randTexture;
     for (int y = 0; y < height; y++)
     {
         for (int x = 0; x < width; x++)
@@ -208,23 +216,35 @@ void MazeGenerator::render(std::map<std::string, GLuint>& textures, const bool& 
                 };
                 for (int i = 0; i < 4; i++)
                 {
+                    // Rotate to place each face in the right place.
                     glRotatef(90, 0, 1, 0);
                     glTranslatef(tileSize/2, 0, tileSize/2);
+
+                    // Don't draw the 
                     if (endTile.x == x && endTile.y == y)
                         neighboors[1] = { x, y };
+
                     if (!isPath(neighboors[i], true))
                     {
-                        gl::drawDividedQuad(tileSize, textures["wall"]);
+                        // Render the lower part of the wall with a random texture.
+                        randTexture = rand() % 5;
+                        gl::drawDividedQuad(tileSize, textures[("wall" + std::to_string(randTexture < 1 ? 1 : 0)).c_str()]);
                         glTranslatef(0, tileSize, 0);
-                        gl::drawDividedQuad(tileSize, textures["wall"]);
+
+                        // Render the higher part of the wall with a random texture.
+                        randTexture = rand() % 5;
+                        gl::drawDividedQuad(tileSize, textures[("wall" + std::to_string(randTexture < 1 ? 1 : 0)).c_str()]);
                         glTranslatef(0, -tileSize, 0);
                     }
                 }
 
-                // Render the upper and lower faces.
+                // Render the upper face with a random texture.
+                randTexture = rand() % 5;
                 glRotatef(-90, 1, 0, 0);
                 glTranslatef(0, tileSize/2, tileSize*1.5);
-                gl::drawDividedQuad(tileSize, textures["ceiling"]);
+                gl::drawDividedQuad(tileSize, textures[("ceiling" + std::to_string(randTexture < 1 ? 1 : 0)).c_str()]);
+
+                // Render the lower face.
                 glRotatef(180, 1, 0, 0);
                 glTranslatef(0, 0, tileSize*2);
                 gl::drawDividedQuad(tileSize, textures["floor"]);
@@ -233,6 +253,9 @@ void MazeGenerator::render(std::map<std::string, GLuint>& textures, const bool& 
             glPopMatrix();
         }
     }
+
+    // Reset the seed.
+    srand(time(NULL));
 
     // Render the start door.
     glPushMatrix();
@@ -245,7 +268,7 @@ void MazeGenerator::render(std::map<std::string, GLuint>& textures, const bool& 
     // Render the end door.
     glPushMatrix();
     glTranslatef((endTile.x - startTile.x) * tileSize, 0, (endTile.y - startTile.y) * tileSize - tileSize);
-    glTranslatef(0, 0, -0.05);
+    glTranslatef(0, 0, 0.05);
     if (allChestsOpened) {
         glRotatef(-90, 0, 1, 0);
         glTranslatef(tileSize/2, 0, tileSize/2 - 0.05);

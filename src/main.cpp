@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 
     // Create interactable objects for the chests.
     Interactable chests[5];
-    bool         chestsOpened[5];
+    bool         chestsOpened[5] = { 0, 0, 0, 0, 0 };
     for (int i = 0; i < 5; i++)
     {
         vector2f roomPos = { (float)(mazeGen.getRoomCoords(i).x - mazeGen.getMazeStart().x) * mazeGen.tileSize, 
@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
 
     // Load the textures.
     std::map<std::string, GLuint> textures;
-    std::string textureNames[] = { "wall", "floor", "ceiling", "light", "door0", "door1", "chest0", "chest1", "chest2" };
+    std::string textureNames[] = { "wall0", "wall1", "floor", "ceiling0", "ceiling1", "light", "door0", "door1", "chest0", "chest1", "chest2" };
     for (long unsigned int i = 0; i < sizeof(textureNames) / sizeof(textureNames[0]); i++)
         textures[textureNames[i]] = loadBmpTexture(("Resources/Art/" + textureNames[i] + ".bmp").c_str());
 
@@ -154,14 +154,14 @@ int main(int argc, char* argv[])
         bool allChestsOpened = true;
         for (int i = 0; i < 5; i++) 
         {
+            if (!chestsOpened[i]) {
+                allChestsOpened = false;
+            }
             if (chests[i].interaction(window, camera.getPos())) 
             {
                 chests[i].setActive(false);
                 chestsOpened[i] = true;
                 updateLightColor(i);
-            }
-            if (!chestsOpened[i]) {
-                allChestsOpened = false;
             }
         }
         if (allChestsOpened)
@@ -181,12 +181,12 @@ int main(int argc, char* argv[])
 
 
         // Disable collisions when the player gets out of the maze.
-        if (allChestsOpened)
+        if (allChestsOpened && collisions)
         {
             vector3f endPos = {
-                (float)(mazeGen.getMazeEnd().x - mazeGen.getMazeStart().x) * mazeGen.tileSize, 
+                (float)((mazeGen.getMazeEnd().x - mazeGen.getMazeStart().x) * mazeGen.tileSize), 
                 10, 
-                (float)(mazeGen.getMazeEnd().y - mazeGen.getMazeStart().y) * mazeGen.tileSize - mazeGen.tileSize * 1.5f
+                (float)((mazeGen.getMazeEnd().y - mazeGen.getMazeStart().y) * mazeGen.tileSize - mazeGen.tileSize * 0.5)
             };
 
             if (endPos.x - mazeGen.tileSize/2 <= camera.getPos().x && camera.getPos().x <= endPos.x + mazeGen.tileSize/2 && 
