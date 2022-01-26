@@ -112,9 +112,9 @@ void updateLights(GLFWwindow* window, const MazeGenerator& mazeGen, const GLuint
     // Move the exit room according to camera transforms.
     GLfloat exitLight_position[4] = 
     { 
-        (float)(mazeGen.getMazeEnd().x - mazeGen.getMazeStart().x) * mazeGen.tileSize, 
+        (GLfloat)((mazeGen.getMazeEnd().x - mazeGen.getMazeStart().x) * mazeGen.tileSize), 
         12, 
-        (float)(mazeGen.getMazeEnd().y - mazeGen.getMazeStart().y) * mazeGen.tileSize - mazeGen.tileSize*1.5, 
+        (GLfloat)((mazeGen.getMazeEnd().y - mazeGen.getMazeStart().y) * mazeGen.tileSize - mazeGen.tileSize), 
         1 
     };
     glLightfv(GL_LIGHT0, GL_POSITION, exitLight_position);
@@ -124,5 +124,9 @@ void updateLightColor(const int& lightID)
 {
     GLfloat curLight = getCurrentLight(lightID);
     GLfloat curLight_ambient[4] = { 0, 7, 1, 1 };
+    if (lightID == 5) {
+        curLight_ambient[1] = 0;
+        curLight_ambient[2] = 20;
+    }
     glLightfv(curLight, GL_AMBIENT, curLight_ambient);
 }

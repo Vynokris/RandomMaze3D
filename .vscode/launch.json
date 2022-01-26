@@ -5,7 +5,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/intro_gl",
+            "program": "${workspaceFolder}/maze",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
