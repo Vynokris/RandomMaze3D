@@ -6,11 +6,11 @@
 class Camera
 {
 private:
-    GLFWwindow* window;         // Pointer to the window.
-    float speed = 0.1;          // The camera's speed.
-    vector2double mousePos;     // The mouse position.
-    vector3f pos = { 0, 0, 0 }; // The camera position.
-    vector3f rot = { 0, 0, 0 }; // The camera rotation.
+    GLFWwindow*   window;                   // Pointer to the window.
+    float         speed      = 0.1;         // The camera's speed.
+    vector2double mousePos;                 // The mouse position.
+    vector3f      pos        = { 0, 0, 0 }; // The camera position.
+    vector3f      rot        = { 0, 0, 0 }; // The camera rotation.
 
 public:
     // Constructors.

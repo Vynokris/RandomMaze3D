@@ -8,8 +8,9 @@
 class MazeGenerator
 {
 private:
-    vector2i startTile; // The start of the maze.
-    vector2i endTile;   // The end of the maze.
+    vector2i startTile;     // The start of the maze.
+    vector2i endTile;       // The end of the maze.
+    vector2i roomCoords[5]; // The coordinates of the 5 rooms.
 
     void makePath(const vector2i& coords);                                 // Makes the element at the given coordinates a path.
     bool isPath  (const vector2i& coords, const bool& outerWalls = false); // Checks if the element at the given coordinates is a path. If outerWalls is true, coordinates outside of the maze will be walls.
@@ -40,10 +41,10 @@ public:
     vector3f backToMazeVec(vector3f worldCoords);
 
     // Render the maze.
-    void render(std::map<std::string, GLuint>& textures);
+    void render(std::map<std::string, GLuint>& textures, const bool& allChestsOpened);
 
-    // Get the maze startint position.
-    vector2i getMazeStart();
-    // Get the maze ending position.
-    vector2i getMazeEnd();
+    // ---- Getters ---- //
+    vector2i getMazeStart()       const;
+    vector2i getMazeEnd()         const;
+    vector2i getRoomCoords(int i) const;
 };

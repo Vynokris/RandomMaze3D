@@ -92,14 +92,14 @@ void MazeGenerator::generate()
         (i == 0 ? endTile : startTile) = coords;
     }
 
-    // Create random rooms.
-    vector2i roomCoords[5] = {
-        {             2,              2 },
-        { (width-1) - 2,              2 },
-        {             2, (height-1) - 2 },
-        { (width-1) - 2, (height-1) - 2 },
-        {  width/2,       height/2      }
-    };
+    // Set the room coordinates.
+    roomCoords[0] = {             2,              2 };
+    roomCoords[1] = { (width-1) - 2,              2 };
+    roomCoords[2] = {             2, (height-1) - 2 };
+    roomCoords[3] = { (width-1) - 2, (height-1) - 2 };
+    roomCoords[4] = {  width/2,       height/2      };
+
+    // Create the 5 rooms.
     for (int i = 0; i < 5; i++)
     {
         for (int x = -1; x <= 1; x++)
@@ -127,7 +127,14 @@ bool MazeGenerator::isInMaze(vector3f worldCoords)
 {
     vector2i tileCoords = { (int)(worldCoords.x + startTile.x * tileSize + tileSize/2) / tileSize, 
                             (int)(worldCoords.z + height      * tileSize)              / tileSize };
-    return isPath(tileCoords, true);
+    
+    // Used to check collisions with chests.
+    bool isRoom = false;
+    for (int i = 0; i < 5; i++)
+        if (tileCoords.x == roomCoords[i].x && tileCoords.y == roomCoords[i].y)
+            isRoom = true;
+
+    return isPath(tileCoords, true) && !isRoom;
 }
 
 vector3f MazeGenerator::backToMazeVec(vector3f worldCoords)
@@ -144,7 +151,14 @@ vector3f MazeGenerator::backToMazeVec(vector3f worldCoords)
     {
         for (int x = -1; x <= 1; x++) 
         {
-            if (isPath({ tileCoords.x + x, tileCoords.y + y }))
+            // Check collisions with chests.
+            bool isRoom = false;
+            for (int i = 0; i < 5; i++)
+                if (tileCoords.x + x == roomCoords[i].x && tileCoords.y + y == roomCoords[i].y)
+                    isRoom = true;
+
+            // Check collisions with walls.
+            if (isPath({ tileCoords.x + x, tileCoords.y + y }) && !isRoom)
             {
                 vector2f curTileWorldCoords = { (float)(tileCoords.x + x - startTile.x) * tileSize, 
                                                 (float)(tileCoords.y + y - height)      * tileSize + tileSize/2 };
@@ -172,7 +186,7 @@ vector3f MazeGenerator::backToMazeVec(vector3f worldCoords)
     return { backToMazeVector.x, 0, backToMazeVector.y };
 }
 
-void MazeGenerator::render(std::map<std::string, GLuint>& textures)
+void MazeGenerator::render(std::map<std::string, GLuint>& textures, const bool& allChestsOpened)
 {
     for (int y = 0; y < height; y++)
     {
@@ -219,4 +233,69 @@ void MazeGenerator::render(std::map<std::string, GLuint>& textures)
             glPopMatrix();
         }
     }
+
+    // Render the start door.
+    glPushMatrix();
+    glTranslatef(0, 0, -0.05);
+    gl::drawDividedQuad(tileSize, textures["door0"]);
+    glTranslatef(0, 10, 0);
+    gl::drawDividedQuad(tileSize, textures["door1"]);
+    glPopMatrix();
+
+    // Render the end door.
+    glPushMatrix();
+    glTranslatef((endTile.x - startTile.x) * tileSize, 0, (endTile.y - startTile.y) * tileSize - tileSize);
+    glTranslatef(0, 0, -0.05);
+    if (allChestsOpened) {
+        glRotatef(-90, 0, 1, 0);
+        glTranslatef(tileSize/2, 0, tileSize/2 - 0.05);
+    }
+    gl::drawDividedQuad(tileSize, textures["door0"]);
+    glTranslatef(0, 10, 0);
+    gl::drawDividedQuad(tileSize, textures["door1"]);
+    glPopMatrix();
+
+    // Render the room chests.
+    for (int i = 0; i < 5; i++)
+    {
+        // Get the world position of the current room.
+        vector2f roomPos = { (float)(roomCoords[i].x - startTile.x) * tileSize, 
+                             (float)(roomCoords[i].y - startTile.y) * tileSize - tileSize/2, };
+
+        // Draw the light texture.
+        glPushMatrix();
+        glTranslatef(roomPos.x, 14.95, roomPos.y);
+        glRotatef(-90, 1, 0, 0);
+        gl::drawDividedQuad(10, textures["light"]);
+        glPopMatrix();
+
+        // Draw the chest.
+        glPushMatrix();
+        glTranslatef(roomPos.x, 0, roomPos.y);
+        glTranslatef(0, 0, tileSize/2);
+
+        // Render the 4 side faces.
+        for (int i = 0; i < 4; i++)
+        {
+            glRotatef(-90, 0, 1, 0);
+            glTranslatef(-tileSize/2, 0, tileSize/2);
+            if (i == 3)
+                gl::drawDividedQuad(tileSize, textures["chest1"], true);
+            else
+                gl::drawDividedQuad(tileSize, textures["chest0"], true);
+        }
+
+        // Render the upper and lower faces.
+        glRotatef(90, 1, 0, 0);
+        glTranslatef(0, -tileSize/2, -tileSize/2);
+        gl::drawDividedQuad(tileSize, textures["chest2"], true);
+        glTranslatef(0, 0, tileSize);
+        glPopMatrix();
+    }
 }
+
+vector2i MazeGenerator::getMazeStart()       const { return startTile; }
+
+vector2i MazeGenerator::getMazeEnd()         const { return endTile; }
+
+vector2i MazeGenerator::getRoomCoords(int i) const { return roomCoords[i]; } 

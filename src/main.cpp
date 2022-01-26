@@ -5,7 +5,6 @@
 #include <string>
 #include <ctime>
 
-#define GLFW_DLL
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
@@ -13,6 +12,8 @@
 #include "maths.hpp"
 #include "bmpLoader.hpp"
 #include "camera.hpp"
+#include "lights.hpp"
+#include "interactable.hpp"
 #include "draw.hpp"
 #include "mazeGen.hpp"
 
@@ -59,42 +60,33 @@ int main(int argc, char* argv[])
     Camera camera(window, { 0, 10, -5 }, { 0, 0, 0 }, 0.5);
     bool showWireframe = false;
     bool orthographic  = false;
+    bool collisions    = true;
 
     // Create the maze generator.
-    MazeGenerator mazeGen(31, 31);
+    MazeGenerator mazeGen(25, 25);
     srand(time(NULL));
     mazeGen.generate();
 
+    // Create interactable objects for the chests.
+    Interactable chests[5];
+    bool         chestsOpened[5];
+    for (int i = 0; i < 5; i++)
+    {
+        vector2f roomPos = { (float)(mazeGen.getRoomCoords(i).x - mazeGen.getMazeStart().x) * mazeGen.tileSize, 
+                             (float)(mazeGen.getRoomCoords(i).y - mazeGen.getMazeStart().y) * mazeGen.tileSize - mazeGen.tileSize/2, };
+        chests[i].setPos({ roomPos.x, 5, roomPos.y });
+    }
+
+    // Create the scene lights.
+    setupLights();
+
     // Load the textures.
     std::map<std::string, GLuint> textures;
-    std::string textureNames[] = { "wall", "floor", "ceiling" };
+    std::string textureNames[] = { "wall", "floor", "ceiling", "light", "door0", "door1", "chest0", "chest1", "chest2" };
     for (long unsigned int i = 0; i < sizeof(textureNames) / sizeof(textureNames[0]); i++)
         textures[textureNames[i]] = loadBmpTexture(("Resources/Art/" + textureNames[i] + ".bmp").c_str());
-    
-    // Load the decoration textures.
-    /*
-    std::map<std::string, GLuint> decorations;
-    std::string decorationNames[] = { "vines" };
-    for (long unsigned int i = 0; i < sizeof(textureNames) / sizeof(textureNames[0]); i++)
-        decorations[decorationNames[i]] = loadTexture(("Resources/Art/" + decorationNames[i] + ".bmp").c_str());
-    */
 
-    // Create an ambient light.
-    GLfloat light2_ambient[]  = { 1, 1, 1, 1 };
-    glLightfv(GL_LIGHT2, GL_AMBIENT,  light2_ambient);
 
-    // Create the camera light.
-    GLfloat light1_ambient []            = { 6, 5.5, 3, 1 };
-    GLfloat light1_position[]            = { 0, camera.getPos().y, 0, 1 };
-    GLfloat light1_constant_attenuation  = 1;
-    GLfloat light1_linear_attenuation    = 0.05;
-    GLfloat light1_quadratic_attenuation = 0.01;
-    glLightfv(GL_LIGHT1, GL_AMBIENT,               light1_ambient);
-    glLightfv(GL_LIGHT1, GL_POSITION,              light1_position);
-    glLightf (GL_LIGHT1, GL_CONSTANT_ATTENUATION,  light1_constant_attenuation);
-    glLightf (GL_LIGHT1, GL_LINEAR_ATTENUATION,    light1_linear_attenuation);
-    glLightf (GL_LIGHT1, GL_QUADRATIC_ATTENUATION, light1_quadratic_attenuation);
-    glEnable (GL_LIGHT1);
 
     // Main loop.
     while (!glfwWindowShouldClose(window))
@@ -117,11 +109,13 @@ int main(int argc, char* argv[])
         else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
             orthographic = true;
         
-        // 5-6 to toggle the light 2.
-        if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS)
-            glDisable(GL_LIGHT2);
-        if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS)
-            glEnable(GL_LIGHT2);
+        // 9-0 to toggle collisions.
+        if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS)
+            collisions = true;
+        else if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)
+            collisions = false;
+
+
 
         // Clear buffer.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -135,62 +129,73 @@ int main(int argc, char* argv[])
         if (orthographic)
             glOrtho((float)-screenWidth / 120, (float)screenWidth / 120, (float)-screenHeight / 120, (float)screenHeight / 120, 0.f, 100.f);
         else
-            gluPerspective(85.f, (float)screenWidth / screenHeight, 0.01f, 100.f);
-        
+            gluPerspective(85.f, (float)screenWidth / screenHeight, 0.01f, 270.f);
+
+
+
         // Send modelview matrix.
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
 
-        // Update the camera with user input and apply its transforms to the modelview.
+        // Update the camera with user input.
         camera.update();
-        for (int x = -1; x <= 1; x++);
-        if (!mazeGen.isInMaze(camera.getPos())) {
+
+        // Keep the player in-bounds.
+        if (collisions && !mazeGen.isInMaze(camera.getPos())) 
+        {
             vector3f vec = mazeGen.backToMazeVec(camera.getPos());
             camera.setPos({ camera.getPos().x + vec.x, camera.getPos().y, camera.getPos().z + vec.z });
         }
+
+        // Apply the camera's transforms to the model view.
         camera.applyTransforms();
+
+        // Update the chests.
+        bool allChestsOpened = true;
+        for (int i = 0; i < 5; i++) 
+        {
+            if (chests[i].interaction(window, camera.getPos())) 
+            {
+                chests[i].setActive(false);
+                chestsOpened[i] = true;
+                updateLightColor(i);
+            }
+            if (!chestsOpened[i]) {
+                allChestsOpened = false;
+            }
+        }
+        if (allChestsOpened)
+        {
+            updateLightColor(5);
+        }
 
         // Draw primitive.
         glPolygonMode(GL_FRONT_AND_BACK, showWireframe ? GL_LINE : GL_FILL);
 
+        // Update the scene lights.
+        updateLights(window, mazeGen, textures["light"]);
+
         // Render the maze geometry.
-        mazeGen.render(textures);
+        mazeGen.render(textures, allChestsOpened);
 
-        /*
-        glPushMatrix();
 
-        // Draw the gizmo in the center.
-        gl::drawGizmo(1);
 
-        // Draw the triangle.
-        glTranslatef(2, 0, 0);
-        gl::drawTriangle(1, textures["Cobblestone1"]);
+        // Disable collisions when the player gets out of the maze.
+        if (allChestsOpened)
+        {
+            vector3f endPos = {
+                (float)(mazeGen.getMazeEnd().x - mazeGen.getMazeStart().x) * mazeGen.tileSize, 
+                10, 
+                (float)(mazeGen.getMazeEnd().y - mazeGen.getMazeStart().y) * mazeGen.tileSize - mazeGen.tileSize * 1.5f
+            };
 
-        // Draw the quad.
-        glTranslatef(1.5, 0, 0);
-        gl::drawDividedQuad(1, textures["Cobblestone0"]);
-
-        // Draw the cube.
-        glTranslatef(1.5, 0, 0);
-        gl::drawCube(1, textures["StoneBricks1"]);
-
-        // Draw the cone.
-        glTranslatef(1.5, 0, 0);
-        glColor3f(31.f/255, 189.f/255, 180.f/255);
-        gl::drawCone(10, 0.5, 1);
-
-        // Draw the sphere.
-        glTranslatef(2, 0, 0);
-        glColor3f(111.f/255, 93.f/255, 215.f/255);
-        gl::drawSphere(50, 25, 1);
-
-        // Draw the point sphere.
-        glTranslatef(2.5, 0, 0);
-        glColor3f(1, 1, 1);
-        gl::drawPointSphere(100, 10, 1);
-
-        glPopMatrix();
-        */
+            if (endPos.x - mazeGen.tileSize/2 <= camera.getPos().x && camera.getPos().x <= endPos.x + mazeGen.tileSize/2 && 
+                endPos.z - mazeGen.tileSize/2 <= camera.getPos().z && camera.getPos().z <= endPos.z + mazeGen.tileSize/2)
+            {
+                collisions = false;
+                glEnable(GL_LIGHT1);
+            }
+        }
 
         glfwSwapBuffers(window);
     }

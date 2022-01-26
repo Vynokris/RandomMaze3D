@@ -59,46 +59,56 @@ double remap(double val, double inputStart, double inputEnd, double outputStart,
 
 
 // Get the angle of a 2D vector.
-float vector2fAngle(vector2f v)
+float vector2fAngle(const vector2f& v)
 {
     return (float)copysign(acos((double)vector2fNormalize(v).x), asin((double)vector2fNormalize(v).y));
 }
 
 // Create a 2D vector from 2 2D points.
-vector2f vector2fFromPoints(vector2f p1, vector2f p2)
+vector2f vector2fFromPoints(const vector2f& p1, const vector2f& p2)
 {
     return { p2.x - p1.x, p2.y - p1.y };
 }
 
 // Normalize a 2D vector.
-vector2f vector2fNormalize(vector2f v)
+vector2f vector2fNormalize(const vector2f& v)
 {
     float length = sqrt(sqpow(v.x) + sqpow(v.y));
     return { v.x / length, v.y / length };
 }
 
-// Resize a 3D vector.
-vector3f vector3fResize(vector3f v, float size)
+vector3f vector3fFromPoints(const vector3f& p1, const vector3f& p2)
 {
-    v = vector3fNormalize(v);
-    return { v.x * size, v.y * size, v.z * size };
+    return { p2.x - p1.x, p2.y - p1.y, p2.z - p1.z };
+}
+
+float vector3fLength(const vector3f& v)
+{
+    return sqrt(sqpow(v.x) + sqpow(v.y) + sqpow(v.z));
+}
+
+// Resize a 3D vector.
+vector3f vector3fResize(const vector3f& v, const float& size)
+{
+    vector3f v2 = vector3fNormalize(v);
+    return { v2.x * size, v2.y * size, v2.z * size };
 }
 
 // Normalize a 3D vector.
-vector3f vector3fNormalize(vector3f v)
+vector3f vector3fNormalize(const vector3f& v)
 {
     float length = sqrt(sqpow(v.x) + sqpow(v.y) + sqpow(v.z));
     return { v.x / length, v.y / length, v.z / length };
 }
 
 // 3D vector dot product.
-float vector3fDot(vector3f v1, vector3f v2)
+float vector3fDot(const vector3f& v1, const vector3f& v2)
 {
     return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
 // Linear interpolation between two 3D points.
-vector3f vector3fLerp(float val, vector3f start, vector3f end)
+vector3f vector3fLerp(const float& val, const vector3f& start, const vector3f& end)
 {
     return { start.x + val * (end.x - start.x), 
              start.y + val * (end.y - start.y), 
