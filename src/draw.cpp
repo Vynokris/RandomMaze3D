@@ -73,6 +73,32 @@ void gl::drawDividedQuad(const float& size, const GLuint& texture, bool negateNo
     }
 }
 
+void gl::drawDividedQuad(const vector2f& size, const GLuint& texture, bool negateNormals)
+{
+    if (texture)
+    {
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glEnable(GL_TEXTURE_2D);
+    }
+
+    glBegin(GL_TRIANGLES);
+    {
+        glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(0, 0); glVertex3f(-size.x/2,  size.y/2, 0.f);
+        glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(0, 1); glVertex3f(-size.x/2, -size.y/2, 0.f);
+        glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(1, 0); glVertex3f( size.x/2,  size.y/2, 0.f);
+        
+        glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(1, 1); glVertex3f( size.x/2, -size.y/2, 0.f);
+        glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(1, 0); glVertex3f( size.x/2,  size.y/2, 0.f);
+        glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(0, 1); glVertex3f(-size.x/2, -size.y/2, 0.f);
+    }
+    glEnd();
+
+    if (texture)
+    {
+        glDisable(GL_TEXTURE_2D);
+    }
+}
+
 void gl::drawCube(const float& size, const GLuint& texture)
 {
     glPushMatrix();

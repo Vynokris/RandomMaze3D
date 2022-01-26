@@ -1,5 +1,5 @@
 PROGRAM = intro_gl
-OBJS    = src/main.o src/gl.o src/draw.o src/maths.o src/bmpLoader.o src/mazeGen.o src/camera.o
+OBJS    = src/main.o src/gl.o src/draw.o src/maths.o src/bmpLoader.o src/mazeGen.o src/camera.o src/lights.o src/interactable.o
 
 CXX      = g++
 CXXFLAGS = -O0 -g -Wall -Wno-unused-variable
