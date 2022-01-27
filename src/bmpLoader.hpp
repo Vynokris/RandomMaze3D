@@ -25,6 +25,10 @@ struct BmpHeader
 };
 #pragma pack(pop)
 
+unsigned char* loadBmpData(const char* filename, int32_t* widthGetter, int32_t* heightGetter);
+
+GLuint loadTextureFromData(unsigned char* data, const int32_t& width, const int32_t& height, GLuint texture = 0, const bool& deleteData = true);
+
 GLuint loadBmpTexture(const char* filename);
 
 GLuint loadTestTexture();

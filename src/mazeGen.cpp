@@ -54,8 +54,10 @@ vector2i MazeGenerator::choice(const std::vector<vector2i>& array)
 void MazeGenerator::generate()
 {
     // Make sure the maze height and width are not even.
-    if (width % 2 == 0 || height % 2 == 0)
-        return;
+    if (width % 2 == 0)
+        width++;
+    if (height % 2 == 0)
+        height++;
 
     // Wipe the maze array.
     maze.assign(height, std::vector<int>());
@@ -108,6 +110,8 @@ void MazeGenerator::generate()
                 makePath({ roomCoords[i].x + x, roomCoords[i].y + y });
             }
         }
+        // For some reason chests are offset if this isn't done.
+        roomCoords[i].y--;
     }
 
     //! DEBUG: print the maze.
@@ -130,7 +134,7 @@ bool MazeGenerator::isInMaze(vector3f worldCoords)
     // Check collisions with chests.
     bool isRoom = false;
     for (int i = 0; i < 5; i++)
-        if (tileCoords.x == roomCoords[i].x && tileCoords.y == roomCoords[i].y)
+        if (tileCoords.x == roomCoords[i].x && tileCoords.y == roomCoords[i].y+1)
             isRoom = true;
     
     // Fix negative collisions (they are broken because of the integer rounding).
@@ -283,7 +287,7 @@ void MazeGenerator::render(std::map<std::string, GLuint>& textures, const bool& 
     {
         // Get the world position of the current room.
         vector2f roomPos = { (float)(roomCoords[i].x - startTile.x) * tileSize, 
-                             (float)(roomCoords[i].y - startTile.y) * tileSize - tileSize/2, };
+                             (float)(roomCoords[i].y - startTile.y) * tileSize + tileSize/2, };
 
         // Draw the light texture.
         glPushMatrix();

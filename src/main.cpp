@@ -10,12 +10,13 @@
 
 #include "gl.hpp"
 #include "maths.hpp"
+#include "draw.hpp"
 #include "bmpLoader.hpp"
 #include "camera.hpp"
 #include "lights.hpp"
 #include "interactable.hpp"
-#include "draw.hpp"
 #include "mazeGen.hpp"
+#include "minimap.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -67,13 +68,16 @@ int main(int argc, char* argv[])
     srand(time(NULL));
     mazeGen.generate();
 
+    // Create the minimap.
+    Minimap minimap(mazeGen.width, mazeGen.height, mazeGen.tileSize);
+
     // Create interactable objects for the chests.
     Interactable chests[5];
     bool         chestsOpened[5] = { 0, 0, 0, 0, 0 };
     for (int i = 0; i < 5; i++)
     {
         vector2f roomPos = { (float)(mazeGen.getRoomCoords(i).x - mazeGen.getMazeStart().x) * mazeGen.tileSize, 
-                             (float)(mazeGen.getRoomCoords(i).y - mazeGen.getMazeStart().y) * mazeGen.tileSize - mazeGen.tileSize/2, };
+                             (float)(mazeGen.getRoomCoords(i).y - mazeGen.getMazeStart().y) * mazeGen.tileSize + mazeGen.tileSize/2, };
         chests[i].setPos({ roomPos.x, 5, roomPos.y });
     }
 
@@ -146,6 +150,13 @@ int main(int argc, char* argv[])
             vector3f vec = mazeGen.backToMazeVec(camera.getPos());
             camera.setPos({ camera.getPos().x + vec.x, camera.getPos().y, camera.getPos().z + vec.z });
         }
+        else if (collisions)
+        {
+            minimap.updateVisitedTiles(camera.getPos(), mazeGen.getMazeStart());
+        }
+
+        // Render the minimap on the player's hud.
+        minimap.render();
 
         // Apply the camera's transforms to the model view.
         camera.applyTransforms();
@@ -162,6 +173,7 @@ int main(int argc, char* argv[])
                 chests[i].setActive(false);
                 chestsOpened[i] = true;
                 updateLightColor(i);
+                minimap.updateOpenedChests(mazeGen.getRoomCoords(i));
             }
         }
         if (allChestsOpened)
@@ -194,6 +206,7 @@ int main(int argc, char* argv[])
             {
                 collisions = false;
                 glEnable(GL_LIGHT1);
+                minimap.showAllPaths(mazeGen.maze);
             }
         }
 
