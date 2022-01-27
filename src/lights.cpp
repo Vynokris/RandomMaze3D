@@ -102,13 +102,13 @@ void updateLights(GLFWwindow* window, const MazeGenerator& mazeGen, const GLuint
         { 
             (float)(curRoom.x - startTile.x) * tileSize, 
             12, 
-            (float)(curRoom.y - startTile.y) * tileSize - tileSize/2, 
+            (float)(curRoom.y - startTile.y) * tileSize + tileSize/2, 
             1 
         };
 
         glLightfv(curLight, GL_POSITION, curLight_position);
     }
-
+    
     // Move the exit room according to camera transforms.
     GLfloat exitLight_position[4] = 
     { 
