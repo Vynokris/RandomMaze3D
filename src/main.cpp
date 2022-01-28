@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
     std::map<std::string, GLuint> textures;
     std::string textureNames[] = { "wall0", "wall1", "floor", "ceiling0", "ceiling1", "light", "door0", "door1", "chest0", "chest1", "chest2" };
     for (long unsigned int i = 0; i < sizeof(textureNames) / sizeof(textureNames[0]); i++)
-        textures[textureNames[i]] = loadBmpTexture(("Resources/Art/" + textureNames[i] + ".bmp").c_str());
+        textures[textureNames[i]] = loadBmpTexture(("art/" + textureNames[i] + ".bmp").c_str());
 
 
 

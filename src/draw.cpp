@@ -207,12 +207,9 @@ void gl::drawSphere(const int& lon, const int& lat, const float& r)
             glVertex3f(c1.x, c1.y, c1.z);
             glVertex3f(c2.x, c2.y, c2.z);
             
-            if (0 < j && j < lat - 1)
-            {
-                glVertex3f(c0.x, c0.y, c0.z);
-                glVertex3f(c2.x, c2.y, c2.z);
-                glVertex3f(c3.x, c3.y, c3.z);
-            }
+            glVertex3f(c0.x, c0.y, c0.z);
+            glVertex3f(c2.x, c2.y, c2.z);
+            glVertex3f(c3.x, c3.y, c3.z);
         }
     }
     glEnd();
