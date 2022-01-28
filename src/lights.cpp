@@ -1,5 +1,6 @@
 #include "lights.hpp"
 #include "mazeGen.hpp"
+#include "draw.hpp"
 
 static GLfloat getCurrentLight(int i)
 {

@@ -56,6 +56,25 @@ double remap(double val, double inputStart, double inputEnd, double outputStart,
     return outputStart + (val - inputStart) * (outputEnd - outputStart) / (inputEnd - inputStart);
 }
 
+// Returns true if the given number is a power of 2.
+bool isPowOf2(int val)
+{
+    return val == (int)pow(2, (int)(log(val)/log(2)));
+}
+
+// Returns the closest power of 2 that is inferior or equal to val.
+int getPowOf2Under(int val)
+{
+    return (int)pow(2, (int)(log(val)/log(2)));
+}
+
+// Returns the closest power of 2 that is superior or equal to val.
+int getPowOf2Above(int val)
+{
+    if (isPowOf2(val)) return (int)pow(2, (int)(log(val)/log(2)));
+    else                 return (int)pow(2, (int)(log(val)/log(2)) + 1);
+}
+
 
 
 // Get the angle of a 2D vector.

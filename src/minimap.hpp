@@ -10,6 +10,7 @@ private:
     unsigned char* textureData; // The minimap texture's pixel data.
     GLuint texture;             // The minimap texture.
     int32_t textureSize[2];     // The minimap texture's size.
+    int xOffset;                // The offset in width due to the texture not being multiple of 2.
     int tileSize;               // The size of each maze tile.
     std::vector<std::vector<bool>> visitedTiles; // 2D array that represents where the player has been in the maze.
 

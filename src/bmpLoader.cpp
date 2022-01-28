@@ -1,9 +1,9 @@
 #include "bmpLoader.hpp"
 
 #include <cstdio>
-#include <cmath>
+#include "maths.hpp"
 
-unsigned char* loadBmpData(const char* filename, int32_t* widthGetter, int32_t* heightGetter)
+unsigned char* loadBmpData(const char* filename, int32_t& widthGetter, int32_t& heightGetter, int32_t& xOffsetGetter)
 {
     // Create the texture and the bmp header object.
     GLuint texture;
@@ -25,8 +25,16 @@ unsigned char* loadBmpData(const char* filename, int32_t* widthGetter, int32_t* 
     fread(data, bmpHeader.sizeOfBitmap, 1, f);
     fclose(f);
 
-    *widthGetter  = bmpHeader.width;
-    *heightGetter = bmpHeader.height;
+    // Set the width and height getters to the texture width and height.
+    widthGetter  = bmpHeader.width;
+    heightGetter = bmpHeader.height;
+
+    // Find the offset at the end of each pixel line.
+    if (!isPowOf2(bmpHeader.width))
+    {
+        int powOf2Under = getPowOf2Under(bmpHeader.width);
+        xOffsetGetter = bmpHeader.width - powOf2Under;
+    }
 
     return data;
 }
