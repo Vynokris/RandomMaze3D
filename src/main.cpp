@@ -152,11 +152,14 @@ int main(int argc, char* argv[])
         }
         else if (collisions)
         {
-            minimap.updateVisitedTiles(camera.getPos(), mazeGen.getMazeStart());
+            minimap.updateCurrentTile(camera.getPos(), mazeGen.getMazeStart());
         }
 
         // Render the minimap on the player's hud.
         minimap.render();
+
+        // Draw any shape.
+        gl::testDrawShape(window, camera.getRot(), textures["wall0"]);
 
         // Apply the camera's transforms to the model view.
         camera.applyTransforms();

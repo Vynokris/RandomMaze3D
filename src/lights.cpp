@@ -2,9 +2,9 @@
 #include "mazeGen.hpp"
 #include "draw.hpp"
 
-static GLfloat getCurrentLight(int i)
+static GLint getCurrentLight(int i)
 {
-    GLfloat curLight;
+    GLint curLight;
     switch (i)
     {
     case 0:
