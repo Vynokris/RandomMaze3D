@@ -3,6 +3,7 @@
 #include "bmpLoader.hpp"
 #include <cmath>
 #include <cstdio>
+#include <ctime>
 
 Minimap::Minimap(int& mazeWidth, int& mazeHeight, const int& _tileSize)
 {
@@ -33,24 +34,34 @@ void Minimap::updateVisitedTiles(const vector3f& cameraPos, const vector2i& star
 {
     vector2i tilePos = { (int)(cameraPos.x + startTile.x * tileSize + tileSize/2) / tileSize, 
                          (int)(cameraPos.z + startTile.y * tileSize)              / tileSize };
-    
-    if (!visitedTiles[tilePos.y][tilePos.x])
+
+    static vector2i lastTilePos = { -1, -1 };
+
+    // Get the offset to the start of the maze texture.
+    int textureStartOffset = (5 * textureSize[0] + 5) * 3;
+
+    // If the player changed tile, reset the last tile color.
+    if (lastTilePos != tilePos)
     {
-        visitedTiles[tilePos.y][tilePos.x] = true;
-
-        // Get the offset to the start of the maze texture.
-        int textureStartOffset = (5 * textureSize[0] + 5) * 3;
-
         // Get the pixel offset at the end of each line.
-        int textureWidthOffset = (tilePos.y+2) * xOffset;
+        int textureWidthOffset[2] = { (lastTilePos.y+2) * xOffset ,
+                                      (tilePos.y    +2) * xOffset };
 
         // Compute the offset to the current pixel in the minimap texture.
-        int tilePosInTexture = textureStartOffset + (tilePos.y * textureSize[0] + tilePos.x) * 3 + textureWidthOffset;
+        int tilePosInTexture[2] = { textureStartOffset + (lastTilePos.y * textureSize[0] + lastTilePos.x) * 3 + textureWidthOffset[0], 
+                                    textureStartOffset + (tilePos.y     * textureSize[0] + tilePos.x)     * 3 + textureWidthOffset[1] };
 
         // Change the pixel color.
-        textureData[tilePosInTexture]     = 108;
-        textureData[tilePosInTexture + 1] = 135;
-        textureData[tilePosInTexture + 2] = 153;
+        textureData[tilePosInTexture[0]]     = 108;
+        textureData[tilePosInTexture[0] + 1] = 135;
+        textureData[tilePosInTexture[0] + 2] = 153;
+
+        textureData[tilePosInTexture[1]]     = 255;
+        textureData[tilePosInTexture[1] + 1] = 210;
+        textureData[tilePosInTexture[1] + 2] = 70;
+
+        // Update the last tile position.
+        lastTilePos = tilePos;
 
         // Reload the minimap texture.
         loadTextureFromData(textureData, textureSize[0], textureSize[1], texture, false);
@@ -77,12 +88,12 @@ void Minimap::updateOpenedChests(const vector2i& chestTile)
             // Change the chest pixel color.
             if (x == 0 && y == 0)
             {
-                textureData[chestTileInTexture + y * xOffset + (y*textureSize[0] + x) * 3]     = 69;
-                textureData[chestTileInTexture + y * xOffset + (y*textureSize[0] + x) * 3 + 1] = 150;
-                textureData[chestTileInTexture + y * xOffset + (y*textureSize[0] + x) * 3 + 2] = 90;
+                textureData[chestTileInTexture + y * xOffset + (y*textureSize[0] + x) * 3]     = 70;
+                textureData[chestTileInTexture + y * xOffset + (y*textureSize[0] + x) * 3 + 1] = 255;
+                textureData[chestTileInTexture + y * xOffset + (y*textureSize[0] + x) * 3 + 2] = 70;
             }
-            // Change the surrounding path pixel colors.
-            else
+            // Change the surrounding path pixel colors without erasing the player's position.
+            else if (textureData[chestTileInTexture + y * xOffset + (y*textureSize[0] + x) * 3] != 255)
             {
                 textureData[chestTileInTexture + y * xOffset + (y*textureSize[0] + x) * 3]     = 108;
                 textureData[chestTileInTexture + y * xOffset + (y*textureSize[0] + x) * 3 + 1] = 135;

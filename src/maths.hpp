@@ -12,6 +12,10 @@ struct vector2i
 {
     int x;
     int y;
+
+    bool     operator==(vector2i v) { return x == v.x && y == v.y; }
+    bool     operator!=(vector2i v) { return x != v.x || y != v.y; }
+    vector2i operator= (vector2i v) { x = v.x; y = v.y; return {x, y}; }
 };
 
 struct vector2f
