@@ -2,6 +2,9 @@
 #include "maths.hpp"
 #include "draw.hpp"
 
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+
 void gl::drawTriangle(const float& size, const GLuint& texture)
 {
     if (texture)
@@ -64,32 +67,6 @@ void gl::drawDividedQuad(const float& size, const GLuint& texture, bool negateNo
         glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(1, 1); glVertex3f( size/2, -size/2, 0.f);
         glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(1, 0); glVertex3f( size/2,  size/2, 0.f);
         glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(0, 1); glVertex3f(-size/2, -size/2, 0.f);
-    }
-    glEnd();
-
-    if (texture)
-    {
-        glDisable(GL_TEXTURE_2D);
-    }
-}
-
-void gl::drawDividedQuad(const vector2f& size, const GLuint& texture, bool negateNormals)
-{
-    if (texture)
-    {
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glEnable(GL_TEXTURE_2D);
-    }
-
-    glBegin(GL_TRIANGLES);
-    {
-        glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(0, 0); glVertex3f(-size.x/2,  size.y/2, 0.f);
-        glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(0, 1); glVertex3f(-size.x/2, -size.y/2, 0.f);
-        glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(1, 0); glVertex3f( size.x/2,  size.y/2, 0.f);
-        
-        glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(1, 1); glVertex3f( size.x/2, -size.y/2, 0.f);
-        glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(1, 0); glVertex3f( size.x/2,  size.y/2, 0.f);
-        glNormal3f(0, 0, (negateNormals ? 1 : -1)); glTexCoord2f(0, 1); glVertex3f(-size.x/2, -size.y/2, 0.f);
     }
     glEnd();
 
@@ -246,6 +223,7 @@ void gl::drawHelperSphere(const float& r, const float& theta, const float& phi)
     glColor3f(1, 0, 1);
     glVertex3f(coords.x, coords.y, coords.z);
     glEnd();
+    glColor3f(1, 1, 1);
     glEnable(GL_DEPTH_TEST);
 }
 
@@ -332,4 +310,83 @@ void gl::drawGizmo(const float& scale)
     glEnd();
 
     glColor3f(1.f, 1.f, 1.f);
+}
+
+void gl::testDrawShape(GLFWwindow* window, vector3f rotation, GLint texture)
+{
+    // Get the current shape in function of the pressed keys.
+    static int shape = -1;
+    if (glfwGetKey(window, GLFW_KEY_KP_DECIMAL))
+        shape = -1;
+    if (glfwGetKey(window, GLFW_KEY_KP_0))
+        shape = 0;
+    if (glfwGetKey(window, GLFW_KEY_KP_1))
+        shape = 1;
+    if (glfwGetKey(window, GLFW_KEY_KP_2))
+        shape = 2;
+    if (glfwGetKey(window, GLFW_KEY_KP_3))
+        shape = 3;
+    if (glfwGetKey(window, GLFW_KEY_KP_4))
+        shape = 4;
+    if (glfwGetKey(window, GLFW_KEY_KP_5))
+        shape = 5;
+    if (glfwGetKey(window, GLFW_KEY_KP_6))
+        shape = 6;
+    if (glfwGetKey(window, GLFW_KEY_KP_7))
+        shape = 7;
+    if (glfwGetKey(window, GLFW_KEY_KP_8))
+        shape = 8;
+    if (glfwGetKey(window, GLFW_KEY_KP_9))
+        shape = 9;
+    
+    // Show or hide colors.
+    if (shape == 9 || shape == 7)
+        glEnable(GL_COLOR_MATERIAL);
+
+    glPushMatrix();
+
+    glTranslatef(0, 0, -1);
+    glRotatef(-rotation.x, 0, 1, 0);
+    glRotatef(-rotation.y, 1, 0, 0);
+    glRotatef(-rotation.z, 0, 0, 1);
+
+    switch (shape)
+    {
+    case 0:
+        drawTriangle(0.5, texture);
+        break;
+    case 1:
+        drawQuad(0.5, texture);
+        break;
+    case 2:
+        drawDividedQuad(0.5, texture);
+        break;
+    case 3:
+        drawCube(0.5, texture);
+        break;
+    case 4:
+        drawSubdividedCube(5, 5, 5, 0.5);
+        break;
+    case 5:
+        drawSphere(10, 10, 0.5);
+        break;
+    case 6:
+        drawPointSphere(10, 10, 0.5);
+        break;
+    case 7:
+        drawHelperSphere(0.5, DEG2RAD*90, DEG2RAD*(360 - rotation.x - 90));
+        break;
+    case 8:
+        drawCone(10, 0.2, 0.5);
+        break;
+    case 9:
+        drawGizmo(0.5);
+        break;
+    case 10:
+        break;
+    default: 
+        break;
+    }
+
+    glPopMatrix();
 }

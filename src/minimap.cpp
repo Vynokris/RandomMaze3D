@@ -5,6 +5,10 @@
 #include <cstdio>
 #include <ctime>
 
+// Note: I don't know how demanding it is to reload a texture at runtime.
+//       I looked it up quickly but didn't find definitive answers.
+//       I do it everytime the player changes tiles, but I didn't see much of an impact on the fps since our PCs are beasts.
+
 Minimap::Minimap(int& mazeWidth, int& mazeHeight, const int& _tileSize)
 {
     tileSize    = _tileSize;
@@ -18,11 +22,6 @@ Minimap::Minimap(int& mazeWidth, int& mazeHeight, const int& _tileSize)
         mazeWidth++;
     if (mazeHeight % 2 == 0)
         mazeHeight++;
-
-    // Initialize the visitedTiles array to 0s.
-    visitedTiles.assign(mazeHeight, std::vector<bool>());
-    for (int i = 0; i < mazeHeight; i++)
-        visitedTiles[i].assign(mazeWidth, false);
 }
 
 Minimap::~Minimap()
@@ -30,7 +29,7 @@ Minimap::~Minimap()
     delete[] textureData;
 }
 
-void Minimap::updateVisitedTiles(const vector3f& cameraPos, const vector2i& startTile)
+void Minimap::updateCurrentTile(const vector3f& cameraPos, const vector2i& startTile)
 {
     vector2i tilePos = { (int)(cameraPos.x + startTile.x * tileSize + tileSize/2) / tileSize, 
                          (int)(cameraPos.z + startTile.y * tileSize)              / tileSize };
@@ -70,8 +69,6 @@ void Minimap::updateVisitedTiles(const vector3f& cameraPos, const vector2i& star
 
 void Minimap::updateOpenedChests(const vector2i& chestTile)
 {
-    visitedTiles[chestTile.y][chestTile.x] = true;
-
     // Get the offset to the start of the maze texture.
     int textureStartOffset = (5 * textureSize[0] + 5) * 3;
 
@@ -114,7 +111,7 @@ void Minimap::showAllPaths(const std::vector<std::vector<int>>& maze)
         for (int x = 4; x-4 < (int)maze[0].size(); x++)
         {
             // Change the color of path pixels.
-            if (maze[y-4][x-4] && !visitedTiles[y-4][x-4])
+            if (maze[y-4][x-4])
             {
                 textureData[y * xOffset + (y*textureSize[0] + x) * 3]     = 108;
                 textureData[y * xOffset + (y*textureSize[0] + x) * 3 + 1] = 135;
