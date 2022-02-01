@@ -50,7 +50,7 @@ void gl::drawQuad(const float& size, const GLuint& texture)
     }
 }
 
-void gl::drawDividedQuad(const float& size, const GLuint& texture, bool negateNormals)
+void gl::drawDividedQuad(const float& size, const GLuint& texture, const bool& negateNormals)
 {
     if (texture)
     {
@@ -100,7 +100,7 @@ void gl::drawCube(const float& size, const GLuint& texture)
     glPopMatrix();
 }
 
-void gl::drawSubdividedCube(const int& resX, const int& resY, const int& resZ, const float& size)
+void gl::drawSubdividedCube(const float& size, const int& resX, const int& resY, const int& resZ)
 {
     glBegin(GL_TRIANGLES);
 
@@ -161,7 +161,7 @@ void gl::drawSubdividedCube(const int& resX, const int& resY, const int& resZ, c
     glEnd();
 }
 
-void gl::drawSphere(const int& lon, const int& lat, const float& r)
+void gl::drawSphere(const float& r, const int& lon, const int& lat)
 {
     glBegin(GL_TRIANGLES);
 
@@ -192,7 +192,7 @@ void gl::drawSphere(const int& lon, const int& lat, const float& r)
     glEnd();
 }
 
-void gl::drawPointSphere(const int& lon, const int& lat, const float& r)
+void gl::drawPointSphere(const float& r, const int& lon, const int& lat)
 {
     glBegin(GL_POINTS);
 
@@ -215,7 +215,7 @@ void gl::drawPointSphere(const int& lon, const int& lat, const float& r)
 void gl::drawHelperSphere(const float& r, const float& theta, const float& phi)
 {
     glColor3f(1, 1, 1);
-    gl::drawPointSphere(20, 20, r);
+    drawPointSphere(r, 20, 20);
 
     glDisable(GL_DEPTH_TEST);
     vector3f coords = getSphericalCoords(r, theta, phi);
@@ -228,7 +228,7 @@ void gl::drawHelperSphere(const float& r, const float& theta, const float& phi)
 }
 
 
-void gl::drawCone(const int& res, const float& r, const float& h)
+void gl::drawCone(const float& r, const float& h, const int& res)
 {
     glRotatef(90, -1.f, 0.f, 0.f);
     glBegin(GL_TRIANGLES);
@@ -269,7 +269,7 @@ void gl::drawGizmo(const float& scale)
     glColor3f    (1.f, 0.f, 0.f);
     glRotatef(90, 0.f, 0.f, -1.f);
     glTranslatef (0.f, scale, 0.f);
-    drawCone(20.f, 0.05 * scale, 0.1 * scale);
+    drawCone(0.05 * scale, 0.1 * scale, 20.f);
     glTranslatef (0.f, -scale, 0.f);
     glRotatef(90, 0.f, 0.f, 1.f);
 
@@ -277,7 +277,7 @@ void gl::drawGizmo(const float& scale)
     glColor3f    (0.f, 1.f, 0.f);
     glRotatef(90, 0.f, 1.f, 0.f);
     glTranslatef (0.f, scale, 0.f);
-    drawCone(20.f, 0.05 * scale, 0.1 * scale);
+    drawCone(0.05 * scale, 0.1 * scale, 20.f);
     glTranslatef (0.f, -scale, 0.f);
     glRotatef(90, 0.f, -1.f, 0.f);
 
@@ -285,7 +285,7 @@ void gl::drawGizmo(const float& scale)
     glColor3f    (0.f, 0.f, 1.f);
     glRotatef(90, 1.f, 0.f, 0.f);
     glTranslatef (0.f, scale, 0.f);
-    drawCone(20.f, 0.05 * scale, 0.1 * scale);
+    drawCone(0.05 * scale, 0.1 * scale, 20.f);
     glTranslatef (0.f, -scale, 0.f);
     glRotatef(90, -1.f, 0.f, 0.f);
 
@@ -312,7 +312,7 @@ void gl::drawGizmo(const float& scale)
     glColor3f(1.f, 1.f, 1.f);
 }
 
-void gl::testDrawShape(GLFWwindow* window, vector3f rotation, GLint texture)
+void gl::testDrawShape(GLFWwindow* window, const vector3f& rotation, const GLint& texture)
 {
     // Get the current shape in function of the pressed keys.
     static int shape = -1;
@@ -341,7 +341,9 @@ void gl::testDrawShape(GLFWwindow* window, vector3f rotation, GLint texture)
     
     // Show or hide colors.
     if (shape == 9 || shape == 7)
-        glEnable(GL_COLOR_MATERIAL);
+        glEnable(GL_COLOR_MATERIAL); // This causes the lighting to be brighter.
+    else
+        glDisable(GL_COLOR_MATERIAL); // This doesn't fix the brighter lighting.
 
     glPushMatrix();
 
@@ -365,19 +367,19 @@ void gl::testDrawShape(GLFWwindow* window, vector3f rotation, GLint texture)
         drawCube(0.5, texture);
         break;
     case 4:
-        drawSubdividedCube(5, 5, 5, 0.5);
+        drawSubdividedCube(0.5, 5, 5, 5);
         break;
     case 5:
-        drawSphere(10, 10, 0.5);
+        drawSphere(0.5, 10, 10);
         break;
     case 6:
-        drawPointSphere(10, 10, 0.5);
+        drawPointSphere(0.5, 10, 10);
         break;
     case 7:
         drawHelperSphere(0.5, DEG2RAD*90, DEG2RAD*(360 - rotation.x - 90));
         break;
     case 8:
-        drawCone(10, 0.2, 0.5);
+        drawCone(0.2, 0.5, 10);
         break;
     case 9:
         drawGizmo(0.5);

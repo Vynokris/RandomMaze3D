@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
     mazeGen.generate();
 
     // Create the minimap.
-    Minimap minimap(mazeGen.width, mazeGen.height, mazeGen.tileSize);
+    Minimap minimap(mazeGen.tileSize);
 
     // Create interactable objects for the chests.
     Interactable chests[5];

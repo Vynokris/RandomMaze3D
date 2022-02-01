@@ -3,7 +3,7 @@
 #include <cstdio>
 #include "maths.hpp"
 
-unsigned char* loadBmpData(const char* filename, int32_t& widthGetter, int32_t& heightGetter, int32_t& xOffsetGetter)
+unsigned char* loadBmpData(const char* filename, int32_t& widthGetter, int32_t& heightGetter, int32_t& paddingGetter)
 {
     // Create the texture and the bmp header object.
     GLuint texture;
@@ -33,7 +33,7 @@ unsigned char* loadBmpData(const char* filename, int32_t& widthGetter, int32_t& 
     if (!isPowOf2(bmpHeader.width))
     {
         int powOf2Under = getPowOf2Under(bmpHeader.width);
-        xOffsetGetter = bmpHeader.width - powOf2Under;
+        paddingGetter = bmpHeader.width - powOf2Under;
     }
 
     return data;

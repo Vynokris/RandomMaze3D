@@ -1,7 +1,7 @@
 #pragma once
 
 #include "maths.hpp"
-#include <GLFW/glfw3.h>
+class GLFWwindow;
 
 class Camera
 {
@@ -32,6 +32,6 @@ public:
     vector3f getForwardVec();
 
     // ---- SETTERS ---- //
-    void setPos(vector3f coords);
-    void setRot(vector3f angles);
+    void setPos(const vector3f& coords);
+    void setRot(const vector3f& angles);
 };

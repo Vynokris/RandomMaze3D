@@ -126,7 +126,7 @@ void MazeGenerator::generate()
     */
 }
 
-bool MazeGenerator::isInMaze(vector3f worldCoords)
+bool MazeGenerator::isInMaze(const vector3f& worldCoords)
 {
     vector2i tileCoords = { (int)(worldCoords.x + startTile.x * tileSize + tileSize/2) / tileSize, 
                             (int)(worldCoords.z + height      * tileSize)              / tileSize };
@@ -144,7 +144,7 @@ bool MazeGenerator::isInMaze(vector3f worldCoords)
     return isPath(tileCoords, true) && !isRoom;
 }
 
-vector3f MazeGenerator::backToMazeVec(vector3f worldCoords)
+vector3f MazeGenerator::backToMazeVec(const vector3f& worldCoords)
 {
     // Get the coordinates of the tile the player is in.
     vector2i tileCoords = { (int)clamp(roundInt(worldCoords.x + startTile.x * tileSize + tileSize/2) / tileSize, 2, width -2), 
