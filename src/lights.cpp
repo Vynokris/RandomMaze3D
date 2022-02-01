@@ -1,6 +1,8 @@
+#include "gl.hpp"
 #include "lights.hpp"
 #include "mazeGen.hpp"
 #include "draw.hpp"
+#include <GLFW/glfw3.h>
 
 static GLint getCurrentLight(int i)
 {

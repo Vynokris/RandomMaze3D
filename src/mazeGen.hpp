@@ -34,10 +34,10 @@ public:
     void generate();
 
     // Check if the given coordinates are in the maze walls.
-    bool isInMaze(vector3f worldCoords);
+    bool isInMaze(const vector3f& worldCoords);
 
     // Returns the smallest vector that moves the player in the maze.
-    vector3f backToMazeVec(vector3f worldCoords);
+    vector3f backToMazeVec(const vector3f& worldCoords);
 
     // Render the maze.
     void render(std::map<std::string, GLuint>& textures, const bool& allChestsOpened);

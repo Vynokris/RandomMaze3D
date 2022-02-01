@@ -1,4 +1,5 @@
 #include "camera.hpp"
+#include <GLFW/glfw3.h>
 
 
 Camera::Camera(GLFWwindow* _window) : window(_window)
@@ -82,12 +83,12 @@ vector3f Camera::getForwardVec()
     return getSphericalCoords(1, DEG2RAD*(360 - rot.y + 90), DEG2RAD*(360 - rot.x - 90));
 }
 
-void Camera::setPos(vector3f coords)
+void Camera::setPos(const vector3f& coords)
 {
     pos = coords;
 }
 
-void Camera::setRot(vector3f angles)
+void Camera::setRot(const vector3f& angles)
 {
     rot = angles;
 }

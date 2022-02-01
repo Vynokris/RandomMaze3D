@@ -11,6 +11,13 @@ When this happens, collisions are disabled, all of the paths are revealed on the
 
 <br>
 
+
+## Build and launch
+
+Use the make command to build the project and start the "maze" executable to launch it.
+
+<br>
+
 ## Camera controls
 
 Use WASD to move the camera in the world.                                       <br>

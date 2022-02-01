@@ -1,10 +1,6 @@
 #pragma once
 
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-#include "gl.hpp"
-
-// Forward declaration of the camera and maze generator classes.
+class GLFWwindow;
 class MazeGenerator;
 
 void setupLights();
