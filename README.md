@@ -23,6 +23,7 @@ Use the make command to build the project and start the "maze" executable to lau
 Use WASD to move the camera in the world.                                                              <br>
 Right click and move the mouse to rotate the camera.                                                   <br>
 Space and shift can be used to move up and down (the player will clip through the ground and ceiling). <br>
+Use the R and F keys to toggle the minimap.                                                            <br>
 Use the 1 and 2 keys to toggle wireframe view.                                                         <br>
 Use the 3 and 4 keys to switch between perspective and orthographic views.                             <br>
 Use the 5 and 6 keys to toggle a bright ambient light.                                                 <br>
