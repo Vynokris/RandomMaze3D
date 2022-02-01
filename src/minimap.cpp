@@ -25,9 +25,14 @@ Minimap::~Minimap()
 
 void Minimap::updateCurrentTile(const vector3f& cameraPos, const vector2i& startTile)
 {
+    // Compute the tile that the player is in.
     vector2i tilePos = { (int)(cameraPos.x + startTile.x * tileSize + tileSize/2) / tileSize, 
                          (int)(cameraPos.z + startTile.y * tileSize)              / tileSize };
+    
+    // Quick fix for the negative coordinates, since 0.5 and -0.5 both equal 0 as rounded integers.
+    if (cameraPos.z + startTile.y * tileSize < 0) tilePos.y--;
 
+    // Initialize the last tile position.
     static vector2i lastTilePos = { -1, -1 };
 
     // Get the offset to the start of the maze texture.
@@ -109,7 +114,7 @@ void Minimap::showAllPaths(const std::vector<std::vector<int>>& maze)
         for (int x = 4; x-4 < (int)maze[0].size(); x++)
         {
             // Change the color of path pixels.
-            if (maze[y-4][x-4])
+            if (maze[y-4][x-4] && textureData[y * padding + (y*textureSize[0] + x) * 3 + 1] != 255)
             {
                 textureData[y * padding + (y*textureSize[0] + x) * 3]     = 108;
                 textureData[y * padding + (y*textureSize[0] + x) * 3 + 1] = 135;

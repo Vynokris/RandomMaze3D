@@ -62,6 +62,7 @@ int main(int argc, char* argv[])
     bool showWireframe = false;
     bool orthographic  = false;
     bool collisions    = true;
+    bool showMinimap   = true;
 
     // Create the maze generator.
     MazeGenerator mazeGen(25, 25);
@@ -118,6 +119,12 @@ int main(int argc, char* argv[])
             collisions = true;
         else if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)
             collisions = false;
+        
+        // R-F to toggle minimap.
+        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+            showMinimap = true;
+        else if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+            showMinimap = false;
 
 
 
@@ -158,7 +165,8 @@ int main(int argc, char* argv[])
         }
 
         // Render the minimap on the player's hud.
-        minimap.render();
+        if (showMinimap)
+            minimap.render();
 
         // Draw any shape.
         gl::testDrawShape(window, camera.getRot(), textures["wall0"]);
