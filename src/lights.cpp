@@ -6,6 +6,7 @@
 
 static GLint getCurrentLight(int i)
 {
+    // GL_LIGHTS 3->7 are the room lights, GL_LIGHT0 is the exit light.
     GLint curLight;
     switch (i)
     {
@@ -126,10 +127,15 @@ void updateLights(GLFWwindow* window, const MazeGenerator& mazeGen, const GLuint
 void updateLightColor(const int& lightID)
 {
     GLfloat curLight = getCurrentLight(lightID);
+
+    // Change the room light color to green.
     GLfloat curLight_ambient[4] = { 0, 7, 1, 1 };
+
+    // Or change the end light color to blue.
     if (lightID == 5) {
         curLight_ambient[1] = 0;
         curLight_ambient[2] = 20;
     }
+    
     glLightfv(curLight, GL_AMBIENT, curLight_ambient);
 }
