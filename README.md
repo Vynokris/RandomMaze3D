@@ -20,15 +20,15 @@ Use the make command to build the project and start the "maze" executable to lau
 
 ## Camera controls
 
-Use WASD to move the camera in the world.                                       <br>
-Right click and move the mouse to rotate the camera.                            <br>
-Space and shift can be used to move up and down.                                <br>
-Use the 1 and 2 keys to toggle wireframe view.                                  <br>
-Use the 3 and 4 keys to switch between perspective and orthographic views.      <br>
-Use the 5 and 6 keys to toggle a bright ambient light.                          <br>
-Use the 7 and 8 keys to toggle the player's point light.                        <br>
-Use the 9 and 0 keys to toggle collisions with the maze.                        <br>
-Use the numpad numbers and decimal point to test the rendering of basic shapes. <br>
+Use WASD to move the camera in the world.                                                              <br>
+Right click and move the mouse to rotate the camera.                                                   <br>
+Space and shift can be used to move up and down (the player will clip through the ground and ceiling). <br>
+Use the 1 and 2 keys to toggle wireframe view.                                                         <br>
+Use the 3 and 4 keys to switch between perspective and orthographic views.                             <br>
+Use the 5 and 6 keys to toggle a bright ambient light.                                                 <br>
+Use the 7 and 8 keys to toggle the player's point light.                                               <br>
+Use the 9 and 0 keys to toggle collisions with the maze.                                               <br>
+Use the numpad numbers and decimal point to test the rendering of basic shapes.                        <br>
 (for some reason GL_COLOR_MATERIAL makes the lights brighter, and the only fix is to restart the program)
 
 <br>
@@ -39,8 +39,8 @@ Use the numpad numbers and decimal point to test the rendering of basic shapes. 
 - Textured triangles
 - Textured quads
 - Textured quads divided in two triangles
-- Textured cubes (with divided quad textures)
-- Subdivided cubes (with each subdivision being a quad divided into two triangles)
+- Textured cubes (with divided quad faces)
+- Subdivided cubes (with each subdivision being a divided quad)
 - Spheres
 - Spheres made of points
 - Cones
@@ -72,6 +72,7 @@ Use the numpad numbers and decimal point to test the rendering of basic shapes. 
 - a maze generator class
 - a function to generate a maze of given size
 - a function to render the generated maze
+- a function to check if the player is inside the maze
 - a function to move the player back inside the maze
 
 <br>
@@ -86,6 +87,5 @@ Use the numpad numbers and decimal point to test the rendering of basic shapes. 
 <br>
 
 ### interactable.hpp defines:
-- an interactable object class
-- this creates a position at which the player can press a key to interact with the object
-- the interaction function returns true when the player interacts with the object
+- an interactable object class, which creates a position where the player can press a key to interact with the object
+- a function that returns true when the player interacts with the object
