@@ -150,6 +150,8 @@ int main(int argc, char* argv[])
             vector3f vec = mazeGen.backToMazeVec(camera.getPos());
             camera.setPos({ camera.getPos().x + vec.x, camera.getPos().y, camera.getPos().z + vec.z });
         }
+
+        // Update the minimap only if the player is in bounds.
         else if (collisions)
         {
             minimap.updateCurrentTile(camera.getPos(), mazeGen.getMazeStart());
@@ -179,6 +181,7 @@ int main(int argc, char* argv[])
                 minimap.updateOpenedChests(mazeGen.getRoomCoords(i));
             }
         }
+        // Update the end light color when all chests are open.
         if (allChestsOpened)
         {
             updateLightColor(5);

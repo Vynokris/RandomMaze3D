@@ -15,6 +15,7 @@ Interactable::Interactable(const vector3f& _pos, const GLint& _interactionKey, c
 
 bool Interactable::interaction(GLFWwindow* window, const vector3f& cameraPos)
 {
+    // If the player is in range of the object and pressed the right key, return true.
     if (active && vector3fLength(vector3fFromPoints(cameraPos, pos)) <= interationDist)
         if (glfwGetKey(window, interactionKey) == GLFW_PRESS)
             return true;

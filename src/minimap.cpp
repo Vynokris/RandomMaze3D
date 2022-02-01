@@ -124,6 +124,7 @@ void Minimap::showAllPaths(const std::vector<std::vector<int>>& maze)
 
 void Minimap::render() const
 {
+    // Render the minimap very close to the camera, so that it clips with as little objects as possible.
     glPushMatrix();
     glTranslatef(0.0274, -0.0132, -0.02);
     gl::drawDividedQuad(0.01, texture);
