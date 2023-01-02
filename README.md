@@ -1,11 +1,11 @@
-# Introduction to OpenGL
+# Random Maze 3D
 
 ## General Infromation
 
 The end goal was to create a maze which the player could explore. It had to be textured, lit and could optionally have collisions. <br> 
 <br>
 The player is positionned at the start of a randomly generated and textured maze. <br> 
-He must explore it to find the 5 rooms where chests need to be opened. <br> 
+They must explore it to find the 5 rooms where chests need to be opened. <br> 
 Once all chests have been opened, the exit door will open and the player will be able to exit the maze. <br>
 When this happens, collisions are disabled, all of the paths are revealed on the minimap, and a bright light is turned on. <br>
 
@@ -14,7 +14,7 @@ When this happens, collisions are disabled, all of the paths are revealed on the
 
 ## Build and launch
 
-Use the make command to build the project and start the "maze" executable to launch it.
+Use the make command to build the project and start the "maze" executable to launch it (exclusive to Linux).
 
 <br>
 
