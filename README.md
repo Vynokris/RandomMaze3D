@@ -1,7 +1,8 @@
 # Random Maze 3D
 
-## General Infromation
+### General Infromation
 
+This project was created for the ISART Digital school by Rémi Serra.<br>
 The end goal was to create a maze which the player could explore. It had to be textured, lit and could optionally have collisions. <br> 
 <br>
 The player is positionned at the start of a randomly generated and textured maze. <br> 
@@ -14,7 +15,8 @@ When this happens, collisions are disabled, all of the paths are revealed on the
 
 ## Build and launch
 
-Use the make command to build the project and start the "maze" executable to launch it (exclusive to Linux).
+Use the make command to build the project and start the "maze" executable to launch it.
+Clang and make have to be installed to build on Windows.
 
 <br>
 
