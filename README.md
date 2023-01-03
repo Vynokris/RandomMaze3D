@@ -2,7 +2,8 @@
 
 ## General Infromation
 
-The end goal was to create a maze which the player could explore. It had to be textured, lit and could optionally have collisions. <br> 
+This project was created for the ISART Digital school by Rémi Serra. <br>
+The end goal was to create a maze using OpenGL 2 and C++, which the player could explore. It had to be textured, lit and could optionally have collisions. <br> 
 <br>
 The player is positionned at the start of a randomly generated and textured maze. <br> 
 They must explore it to find the 5 rooms where chests need to be opened. <br> 
@@ -10,6 +11,12 @@ Once all chests have been opened, the exit door will open and the player will be
 When this happens, collisions are disabled, all of the paths are revealed on the minimap, and a bright light is turned on. <br>
 
 <br>
+
+
+## Preview
+
+<img src="screenshots/interior.png" style="width:600px;">
+<img src="screenshots/outside.png" style="width:600px;">
 
 
 ## Build and launch
@@ -20,16 +27,16 @@ Use the make command to build the project and start the "maze" executable to lau
 
 ## Camera controls
 
-Use WASD to move the camera in the world.                                                              <br>
-Right click and move the mouse to rotate the camera.                                                   <br>
-Space and shift can be used to move up and down (the player will clip through the ground and ceiling). <br>
-Use the R and F keys to toggle the minimap.                                                            <br>
-Use the 1 and 2 keys to toggle wireframe view.                                                         <br>
-Use the 3 and 4 keys to switch between perspective and orthographic views.                             <br>
-Use the 5 and 6 keys to toggle a bright ambient light.                                                 <br>
-Use the 7 and 8 keys to toggle the player's point light.                                               <br>
-Use the 9 and 0 keys to toggle collisions with the maze.                                               <br>
-Use the numpad numbers and decimal point to test the rendering of basic shapes.                        <br>
+Use `WASD` to move the camera in the world. <br>
+`Right click` and move the mouse to rotate the camera. <br>
+`Space` and `shift` can be used to move up and down (the player will clip through the ground and ceiling). <br>
+Use the `R` and `F` keys to toggle the minimap. <br>
+Use the `1` and `2` keys to toggle wireframe view. <br>
+Use the `3` and `4` keys to switch between perspective and orthographic views. <br>
+Use the `5` and `6` keys to toggle a bright ambient light. <br>
+Use the `7` and `8` keys to toggle the player's point light. <br>
+Use the `9` and `0` keys to toggle collisions with the maze. <br>
+Use the numpad numbers and decimal point to test the rendering of basic shapes. <br>
 (for some reason GL_COLOR_MATERIAL makes the lights brighter, and the only fix is to restart the program)
 
 <br>
