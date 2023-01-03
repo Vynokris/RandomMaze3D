@@ -1,6 +1,6 @@
 # Random Maze 3D
 
-## General Infromation
+### General Infromation
 
 This project was created for the ISART Digital school by Rémi Serra. <br>
 The end goal was to create a maze using OpenGL 2 and C++, which the player could explore. It had to be textured, lit and could optionally have collisions. <br> 
@@ -18,10 +18,12 @@ When this happens, collisions are disabled, all of the paths are revealed on the
 <img src="screenshots/interior.png" style="width:600px;">
 <img src="screenshots/outside.png" style="width:600px;">
 
+<br>
 
 ## Build and launch
 
-Use the make command to build the project and start the "maze" executable to launch it (exclusive to Linux).
+Use the `make` command to build the project and start the `maze` executable to launch it. <br>
+Clang and make have to be installed to build on Windows.
 
 <br>
 
